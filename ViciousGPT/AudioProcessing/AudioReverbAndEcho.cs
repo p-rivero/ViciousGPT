@@ -4,8 +4,8 @@ namespace ViciousGPT.AudioProcessing;
 
 internal class AudioReverbAndEcho : AudioEffect
 {
-    public TimeSpan EchoDelay { get; set; } = TimeSpan.FromMilliseconds(500);
-    public float EchoDecayFactor { get; set; } = 0.75f;
+    public TimeSpan EchoDelay { get; set; } = TimeSpan.FromMilliseconds(400);
+    public float EchoDecayFactor { get; set; } = 0.9f;
     public float ReverbRoomSize { get; set; } = 0.5f;
 
     public byte[] ApplyReverbAndEcho(byte[] inputAudio)
