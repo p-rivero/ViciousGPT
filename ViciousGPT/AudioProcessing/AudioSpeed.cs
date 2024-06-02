@@ -1,7 +1,5 @@
 ﻿using NAudio.Wave;
-using System;
 using SoundTouch;
-using NAudio.Wave.SampleProviders;
 
 namespace ViciousGPT.AudioProcessing;
 

@@ -1,4 +1,5 @@
-﻿using ViciousGPT.ApiClient;
+﻿using System.Diagnostics;
+using ViciousGPT.ApiClient;
 using ViciousGPT.AudioProcessing;
 
 namespace ViciousGPT;
@@ -32,28 +33,44 @@ internal class ViciousGptController
     {
         byte[] audioData = recorder.Stop();
         OutputAudio(audioData, "microphoneInput.wav");
-        byte[] trimmedAudio = trimmer.TrimSilence(audioData);
+
+        byte[] trimmedAudio = MeasureTime(() => trimmer.TrimSilence(audioData), "TrimSilence");
         OutputAudio(trimmedAudio, "trimmedMicrophoneInput.wav");
-
         float percentReduction = (1 - (float)trimmedAudio.Length / audioData.Length) * 100;
-        Console.WriteLine($"Trimmed file is {percentReduction} shorter than original file.");
+        Console.WriteLine($"Trimmed file is {percentReduction}% shorter than original file.");
 
-        string transcript = await speechToText.RecognizeSpeech(audioData, UserInputLanguage);
+        string transcript = await MeasureTime(() => speechToText.RecognizeSpeech(audioData, UserInputLanguage), "Transcribe");
         OutputText(transcript, "input_transcript");
 
-        string response = await GenerateResponse(transcript);
+        string response = await MeasureTime(() => GenerateResponse(transcript), "GenerateResponse");
         OutputText(response, "response");
 
-        byte[] responseAudio = await textToSpeech.Synthesize(response);
+        byte[] responseAudio = await MeasureTime(() => textToSpeech.Synthesize(response), "Synthesize");
         OutputAudio(responseAudio, "rawResponse.wav");
 
-        byte[] slowResponseAudio = audioSpeed.ChangeSpeed(responseAudio, 0.8f);
+        byte[] slowResponseAudio = MeasureTime(() => audioSpeed.ChangeSpeed(responseAudio, 0.8f), "ChangeSpeed");
         OutputAudio(slowResponseAudio, "slowedResponse.wav");
 
-        byte[] processedResponseAudio = audioReverbAndEcho.ApplyReverbAndEcho(slowResponseAudio);
+        byte[] processedResponseAudio = MeasureTime(() => audioReverbAndEcho.ApplyReverbAndEcho(slowResponseAudio), "ApplyReverbAndEcho");
         OutputAudio(processedResponseAudio, "processedResponse.wav");
 
         return processedResponseAudio;
+    }
+
+    private static async Task<T> MeasureTime<T>(Func<Task<T>> action, string actionName)
+    {
+        var stopWatch = Stopwatch.StartNew();
+        T result = await action();
+        Console.WriteLine($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
+        return result;
+    }
+    
+    private static T MeasureTime<T>(Func<T> action, string actionName)
+    {
+        var stopWatch = Stopwatch.StartNew();
+        T result = action();
+        Console.WriteLine($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
+        return result;
     }
 
     private void OutputAudio(byte[] audioData, string fileName)
