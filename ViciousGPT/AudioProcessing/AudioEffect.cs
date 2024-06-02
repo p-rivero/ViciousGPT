@@ -18,6 +18,7 @@ internal abstract class AudioEffect
         using MemoryStream outputStream = new();
         using WaveFileWriter writer = new(outputStream, waveFormat);
         writer.WriteSamples(samples, 0, samplesCount);
+        writer.Flush();
         return outputStream.ToArray();
     }
 }

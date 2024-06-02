@@ -7,7 +7,7 @@ internal class ApiClient
     protected string GetKey(string fileName)
     {
         string keyPath = GetKeyPath(fileName);
-        return File.ReadAllText(keyPath);
+        return File.ReadAllText(keyPath).Trim();
     }
 
     protected string GetKeyPath(string fileName)

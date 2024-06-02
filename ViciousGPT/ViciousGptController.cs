@@ -7,9 +7,13 @@ internal class ViciousGptController
 {
     public bool OutputIntermediaryResults { get; set; } = false;
 
+    public string UserInputLanguage { get; set; } = "es-ES";
+    public string UserCharatcterName { get; set; } = "TODO";
+
     private readonly MicrophoneRecorder recorder = new();
     private readonly AudioTrimmer trimmer = new();
     private readonly SpeechToText speechToText = new();
+    private readonly OpenAiClient openAiClient = new();
     private readonly TextToSpeech textToSpeech = new();
     private readonly AudioReverbAndEcho audioReverbAndEcho = new();
     private readonly AudioSpeed audioSpeed = new();
@@ -34,7 +38,7 @@ internal class ViciousGptController
         float percentReduction = (1 - (float)trimmedAudio.Length / audioData.Length) * 100;
         Console.WriteLine($"Trimmed file is {percentReduction} shorter than original file.");
 
-        string transcript = await speechToText.RecognizeSpeech(audioData);
+        string transcript = await speechToText.RecognizeSpeech(audioData, UserInputLanguage);
         OutputText(transcript, "input_transcript");
 
         string response = await GenerateResponse(transcript);
@@ -74,6 +78,7 @@ internal class ViciousGptController
 
     private async Task<string> GenerateResponse(string input)
     {
-        return await Task.FromResult("This will be a response in the future");
+        string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguage);
+        return await openAiClient.CompletePrompt(systemPrompt, input);
     }
 }

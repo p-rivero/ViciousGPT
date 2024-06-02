@@ -8,21 +8,19 @@ internal class SpeechToText : GoogleApiClient
 {
     private readonly SpeechClient speechClient;
 
-    private const string INPUT_VOICE_LANGUAGE = "es-ES";
-
     public SpeechToText()
     {
         speechClient = SpeechClient.Create();
     }
 
-    public async Task<string> RecognizeSpeech(byte[] audioData)
+    public async Task<string> RecognizeSpeech(byte[] audioData, string isoLanguageCode)
     {
         ByteString audioBytes = ByteString.CopyFrom(audioData);
 
         RecognitionConfig recognitionConfig = new()
         {
             Model = "chirp_2",
-            LanguageCodes = { INPUT_VOICE_LANGUAGE },
+            LanguageCodes = { isoLanguageCode },
             AutoDecodingConfig = new AutoDetectDecodingConfig()
         };
 

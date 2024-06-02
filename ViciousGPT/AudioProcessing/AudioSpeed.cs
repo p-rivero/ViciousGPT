@@ -27,7 +27,8 @@ internal class AudioSpeed : AudioEffect
         var inputBuffer = new float[reader.SampleCount * channels];
         int inputLength = reader.ToSampleProvider().Read(inputBuffer, 0, inputBuffer.Length);
 
-        var outputBuffer = new float[inputBuffer.Length];
+        int outputLength = (int)(inputLength / speed);
+        var outputBuffer = new float[outputLength * channels];
         soundTouch.PutSamples(inputBuffer, inputLength / channels);
         int outputSamples = soundTouch.ReceiveSamples(outputBuffer, outputBuffer.Length / channels);
 
