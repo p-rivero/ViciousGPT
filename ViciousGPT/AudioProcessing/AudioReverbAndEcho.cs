@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace ViciousGPT.AudioProcessing;
 
@@ -6,7 +7,9 @@ internal class AudioReverbAndEcho : AudioEffect
 {
     public TimeSpan EchoDelay { get; set; } = TimeSpan.FromMilliseconds(500);
     public float EchoDecayFactor { get; set; } = 0.9f;
-    public float ReverbRoomSize { get; set; } = 0.5f;
+
+    public float ReverbWet { get; set; } = 0.15f;
+    public float ReverbRoomSize { get; set; } = 0.7f;
 
     public byte[] ApplyReverbAndEcho(byte[] inputAudio)
     {
@@ -15,7 +18,7 @@ internal class AudioReverbAndEcho : AudioEffect
         ISampleProvider sampleProvider = inputStream.ToSampleProvider();
 
         sampleProvider = new EchoEffect(sampleProvider, EchoDelay.TotalSeconds, EchoDecayFactor);
-        //sampleProvider = new ReverbEffect(sampleProvider, ReverbRoomSize);
+        sampleProvider = new ReverbEffect(sampleProvider, ReverbWet, ReverbRoomSize);
         return ToByteArray(sampleProvider);
     }
 }
@@ -77,35 +80,24 @@ public class EchoEffect : ISampleProvider
 public class ReverbEffect : ISampleProvider
 {
     private readonly ISampleProvider source;
-    private readonly Freeverb reverb;
 
-    public ReverbEffect(ISampleProvider source, float roomSize)
+    public ReverbEffect(ISampleProvider source, float wet, float roomSize)
     {
-        this.source = source;
-        reverb = new Freeverb(source.WaveFormat.SampleRate)
+        ISampleProvider stereoSource = source.WaveFormat.Channels switch
         {
-            RoomSize = roomSize
+            1 => new MonoToStereoSampleProvider(source),
+            2 => source,
+            _ => throw new ArgumentException("Unsupported number of channels")
+        };
+        this.source = new Freeverb(stereoSource, roomSize, 0.3f)
+        {
+            Wet = wet
         };
     }
 
-    public WaveFormat WaveFormat => source.WaveFormat;
-
+    public WaveFormat WaveFormat => source.WaveFormat; 
     public int Read(float[] buffer, int offset, int count)
     {
-        int samplesRead = source.Read(buffer, offset, count);
-        float[] inputBuffer = new float[samplesRead];
-        Array.Copy(buffer, offset, inputBuffer, 0, samplesRead);
-
-        float[] outputBufferLeft = new float[samplesRead];
-        float[] outputBufferRight = new float[samplesRead];
-
-        reverb.Process(inputBuffer, outputBufferLeft, outputBufferRight);
-
-        for (int i = 0; i < samplesRead; i++)
-        {
-            buffer[offset + i] = outputBufferLeft[i];
-        }
-
-        return samplesRead;
+        return source.Read(buffer, offset, count);
     }
 }

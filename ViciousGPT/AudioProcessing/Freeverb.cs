@@ -1,426 +1,365 @@
-﻿namespace ViciousGPT.AudioProcessing;
+﻿using NAudio.Wave;
 
-// https://github.com/sinshu/meltysynth/blob/main/MeltySynth/src/Reverb.cs
+namespace ViciousGPT.AudioProcessing;
 
-// Copyright(C) 2014 Alex Veltsistas (MIT License)
+// https://github.com/mihaits/NAudio-Synth
 
-// This reverb implementation is based on Freeverb, a public domain reverb
-// implementation by Jezar at Dreampoint.
-
-
-internal sealed class Freeverb
+public abstract class WaveEffect32 : WaveProvider32
 {
-    private const float fixedGain = 0.015F;
-    private const float scaleWet = 3F;
-    private const float scaleDamp = 0.4F;
-    private const float scaleRoom = 0.28F;
-    private const float offsetRoom = 0.7F;
-    private const float initialRoom = 0.5F;
-    private const float initialDamp = 0.5F;
-    private const float initialWet = 1F / scaleWet;
-    private const float initialWidth = 1F;
-    private const int stereoSpread = 23;
+    protected ISampleProvider Input { get; }
 
-    private const int cfTuningL1 = 1116;
-    private const int cfTuningR1 = 1116 + stereoSpread;
-    private const int cfTuningL2 = 1188;
-    private const int cfTuningR2 = 1188 + stereoSpread;
-    private const int cfTuningL3 = 1277;
-    private const int cfTuningR3 = 1277 + stereoSpread;
-    private const int cfTuningL4 = 1356;
-    private const int cfTuningR4 = 1356 + stereoSpread;
-    private const int cfTuningL5 = 1422;
-    private const int cfTuningR5 = 1422 + stereoSpread;
-    private const int cfTuningL6 = 1491;
-    private const int cfTuningR6 = 1491 + stereoSpread;
-    private const int cfTuningL7 = 1557;
-    private const int cfTuningR7 = 1557 + stereoSpread;
-    private const int cfTuningL8 = 1617;
-    private const int cfTuningR8 = 1617 + stereoSpread;
-    private const int apfTuningL1 = 556;
-    private const int apfTuningR1 = 556 + stereoSpread;
-    private const int apfTuningL2 = 441;
-    private const int apfTuningR2 = 441 + stereoSpread;
-    private const int apfTuningL3 = 341;
-    private const int apfTuningR3 = 341 + stereoSpread;
-    private const int apfTuningL4 = 225;
-    private const int apfTuningR4 = 225 + stereoSpread;
+    public float Wet { get; set; }
 
-    private readonly CombFilter[] cfsL;
-    private readonly CombFilter[] cfsR;
-    private readonly AllPassFilter[] apfsL;
-    private readonly AllPassFilter[] apfsR;
+    protected WaveEffect32(int sampleRate, int channels) : base(sampleRate, channels) { }
 
-    private float gain;
-    private float roomSize, roomSize1;
-    private float damp, damp1;
-    private float wet, wet1, wet2;
-    private float width;
-
-    internal Freeverb(int sampleRate)
+    protected WaveEffect32(ISampleProvider input) : base(input.WaveFormat.SampleRate, input.WaveFormat.Channels)
     {
-        cfsL = new CombFilter[]
-        {
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL1)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL2)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL3)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL4)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL5)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL6)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL7)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningL8))
-        };
-
-        cfsR = new CombFilter[]
-        {
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR1)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR2)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR3)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR4)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR5)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR6)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR7)),
-            new CombFilter(ScaleTuning(sampleRate, cfTuningR8))
-        };
-
-        apfsL = new AllPassFilter[]
-        {
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningL1)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningL2)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningL3)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningL4))
-        };
-
-        apfsR = new AllPassFilter[]
-        {
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningR1)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningR2)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningR3)),
-            new AllPassFilter(ScaleTuning(sampleRate, apfTuningR4))
-        };
-
-        foreach (var apf in apfsL)
-        {
-            apf.Feedback = 0.5F;
-        }
-
-        foreach (var apf in apfsR)
-        {
-            apf.Feedback = 0.5F;
-        }
-
-        Wet = initialWet;
-        RoomSize = initialRoom;
-        Damp = initialDamp;
-        Width = initialWidth;
+        Input = input;
+        Wet = 1;
     }
 
-    private int ScaleTuning(int sampleRate, int tuning)
+    public override int Read(float[] buffer, int offset, int sampleCount)
     {
-        return (int)Math.Round((double)sampleRate / 44100 * tuning);
+        var samplesRead = Input?.Read(buffer, offset, sampleCount) ?? sampleCount;
+
+        if (Math.Abs(Wet) < float.Epsilon) return samplesRead;
+
+        if (Math.Abs(Wet - 1) < float.Epsilon)
+        {
+            for (var i = 0; i < sampleCount; ++i)
+                buffer[offset + i] = Apply(buffer[offset + i]);
+
+            return samplesRead;
+        }
+
+        for (var i = 0; i < sampleCount; ++i)
+            buffer[offset + i] = Apply(buffer[offset + i]) * Wet + buffer[offset + i] * (1 - Wet);
+
+        return samplesRead;
     }
 
-    public void Process(float[] input, float[] outputLeft, float[] outputRight)
+    public abstract float Apply(float sample);
+
+}
+
+public class LowPassFeedBackCombFilter : WaveEffect32
+{
+    private int _stereoSpread;
+    private readonly float[] _xl, _yl;
+    private float[] _xr, _yr;
+    private float _xlnN1, _xrnN1;
+    private int _posl, _posr;
+    private bool _left;
+
+    public LowPassFeedBackCombFilter(WaveProvider32 input, int delay, float f, float d, int stereoSpread) : base(input)
     {
-        Array.Clear(outputLeft, 0, outputLeft.Length);
-        Array.Clear(outputRight, 0, outputRight.Length);
+        _left = true;
 
-        foreach (var cf in cfsL)
-        {
-            cf.Process(input, outputLeft);
-        }
+        _stereoSpread = stereoSpread;
+        Feedback = f;
+        Damping = d;
 
-        foreach (var apf in apfsL)
-        {
-            apf.Process(outputLeft);
-        }
+        _xl = new float[delay];
+        _xr = new float[delay + stereoSpread];
+        _yl = new float[delay];
+        _yr = new float[delay + stereoSpread];
+    }
 
-        foreach (var cf in cfsR)
-        {
-            cf.Process(input, outputRight);
-        }
+    public float Feedback { get; set; }
 
-        foreach (var apf in apfsR)
-        {
-            apf.Process(outputRight);
-        }
+    public float Damping { get; set; }
 
-        // With the default settings, we can skip this part.
-        if (1F - wet1 > 1.0E-3 || wet2 > 1.0E-3)
+    public int StereoSpread
+    {
+        get => _stereoSpread;
+        set
         {
-            for (var t = 0; t < input.Length; t++)
-            {
-                var left = outputLeft[t];
-                var right = outputRight[t];
-                outputLeft[t] = left * wet1 + right * wet2;
-                outputRight[t] = right * wet1 + left * wet2;
-            }
+            _stereoSpread = value;
+
+            Array.Resize(ref _xr, _xl.Length + _stereoSpread);
+            Array.Resize(ref _yr, _yl.Length + _stereoSpread);
         }
     }
 
-    public void Mute()
+    // y[n] = (1 - d) * f * y[n-N] + d * y[n-1] - d * x[n-(N+1)] + x[n-N]
+    public override float Apply(float sample)
     {
-        foreach (var cf in cfsL)
+        float yn;
+
+        if (_left)
         {
-            cf.Mute();
+            yn = (1 - Damping) * Feedback * _yl[_posl] + Damping * _yl[_posl == 0 ? _yl.Length - 1 : _posl - 1] - Damping * _xlnN1 + _xl[_posl];
+
+            _xlnN1 = _xl[_posl];
+            _xl[_posl] = sample;
+            _yl[_posl] = yn;
+
+            _posl = (_posl + 1) % _xl.Length;
+        }
+        else
+        {
+            yn = (1 - Damping) * Feedback * _yr[_posr] + Damping * _yr[_posr == 0 ? _yr.Length - 1 : _posr - 1] - Damping * _xrnN1 + _xr[_posr];
+
+            _xrnN1 = _xr[_posr];
+            _xr[_posr] = sample;
+            _yr[_posr] = yn;
+
+            _posr = (_posr + 1) % _xr.Length;
         }
 
-        foreach (var cf in cfsR)
-        {
-            cf.Mute();
-        }
+        _left = !_left;
 
-        foreach (var apf in apfsL)
-        {
-            apf.Mute();
-        }
+        return yn;
+    }
+}
 
-        foreach (var apf in apfsR)
-        {
-            apf.Mute();
-        }
+public class AllPassFilterAprox : WaveEffect32
+{
+    private readonly float[] _xl, _xr, _yl, _yr;
+    private int _posl, _posr;
+    private bool _left;
+
+    public AllPassFilterAprox(WaveProvider32 input, int delay, float gain, int stereoSpread) : base(input)
+    {
+        _left = true;
+
+        Gain = gain;
+
+        _xl = new float[delay];
+        _xr = new float[delay + stereoSpread];
+        _yl = new float[delay];
+        _yr = new float[delay + stereoSpread];
+
+        for (var i = 0; i < delay; ++i)
+            _xl[i] = _xr[i] = _yl[i] = _yr[i] = 0;
+        for (var i = delay; i < delay + stereoSpread; ++i)
+            _xr[i] = _yr[i] = 0;
+
+        _posl = _posr = 0;
     }
 
-    private void Update()
+    public float Gain { get; set; }
+
+    // y[n] = g * y[n-delay] + (1 + g) * x[n-delay] - x[n]
+    public override float Apply(float sample)
     {
-        wet1 = wet * (width / 2F + 0.5F);
-        wet2 = wet * ((1F - width) / 2F);
+        float yn;
 
-        roomSize1 = roomSize;
-        damp1 = damp;
-        gain = fixedGain;
-
-        foreach (var cf in cfsL)
+        if (_left)
         {
-            cf.Feedback = roomSize1;
-            cf.Damp = damp1;
+            yn = Gain * _yl[_posl] + (1 + Gain) * _xl[_posl] - sample;
+
+            _xl[_posl] = sample;
+            _yl[_posl] = yn;
+
+            _posl = (_posl + 1) % _xl.Length;
+        }
+        else
+        {
+            yn = Gain * _yr[_posr] + (1 + Gain) * _xr[_posr] - sample;
+
+            _xr[_posr] = sample;
+            _yr[_posr] = yn;
+
+            _posr = (_posr + 1) % _xr.Length;
         }
 
-        foreach (var cf in cfsR)
-        {
-            cf.Feedback = roomSize1;
-            cf.Damp = damp1;
-        }
+        _left = !_left;
+
+        return yn;
+    }
+}
+
+public enum MixerMode { Additive, Averaging }
+
+public class WaveMixer32 : WaveProvider32
+{
+    private readonly List<WaveProvider32> _inputs, _toAdd, _toRemove;
+
+    public MixerMode Mode { get; set; }
+
+    public WaveMixer32(int sampleRate, int channels) : base(sampleRate, channels)
+    {
+        _inputs = new List<WaveProvider32>();
+        _toAdd = new List<WaveProvider32>();
+        _toRemove = new List<WaveProvider32>();
+
+        Mode = MixerMode.Additive;
     }
 
-    public float InputGain => gain;
+    public WaveMixer32(WaveProvider32 firstInput) : this(firstInput.WaveFormat.SampleRate, firstInput.WaveFormat.Channels)
+    {
+        _inputs.Add(firstInput);
+    }
+
+    public void AddInput(WaveProvider32 waveProvider)
+    {
+        if (!waveProvider.WaveFormat.Equals(WaveFormat))
+            throw new ArgumentException("All incoming channels must have the same format", "waveProvider.WaveFormat");
+
+        _toAdd.Add(waveProvider);
+    }
+
+    public void AddInputs(IEnumerable<WaveProvider32> inputs)
+    {
+        inputs.ToList().ForEach(AddInput);
+    }
+
+    public void RemoveInput(WaveProvider32 waveProvider)
+    {
+        _toRemove.Add(waveProvider);
+    }
+
+    public int InputCount => _inputs.Count;
+
+    public override int Read(float[] buffer, int offset, int count)
+    {
+        if (_toAdd.Count != 0)
+        {
+            _toAdd.ForEach(input => _inputs.Add(input));
+            _toAdd.Clear();
+        }
+        if (_toRemove.Count != 0)
+        {
+            _toRemove.ForEach(input => _inputs.Remove(input));
+            _toRemove.Clear();
+        }
+
+        for (var i = 0; i < count; ++i)
+            buffer[offset + i] = 0;
+
+        var readBuffer = new float[count];
+
+        foreach (var input in _inputs)
+        {
+            input.Read(readBuffer, 0, count);
+
+            for (var i = 0; i < count; ++i)
+                buffer[offset + i] += readBuffer[i];
+        }
+
+        if (Mode == MixerMode.Averaging && _inputs.Count != 0)
+            for (var i = 0; i < count; ++i)
+                buffer[offset + i] /= _inputs.Count;
+
+        return count;
+    }
+}
+
+public class DummyWaveProvider32 : WaveProvider32
+{
+    private float[] _buffer;
+
+    public DummyWaveProvider32(int sampleRate, int channels) : base(sampleRate, channels) { }
+
+    public void SetBuffer(float[] buffer, int offset, int sampleCount)
+    {
+        _buffer = new float[sampleCount];
+        for (var i = 0; i < sampleCount; ++i)
+            _buffer[i] = buffer[offset + i];
+    }
+
+    public float[] GetBuffer()
+    {
+        return _buffer;
+    }
+
+    public override int Read(float[] buffer, int offset, int sampleCount)
+    {
+        if (buffer.Length != sampleCount)
+            throw new Exception();
+
+        for (var i = 0; i < sampleCount; ++i)
+            buffer[offset + i] = _buffer[i];
+
+        return sampleCount;
+    }
+}
+
+
+public class Freeverb : WaveEffect32
+{
+    private readonly LowPassFeedBackCombFilter[] _lbcf;
+    private readonly AllPassFilterAprox[] _ap;
+    private readonly DummyWaveProvider32 _inputCopy;
 
     public float RoomSize
     {
-        get
-        {
-            return (roomSize - offsetRoom) / scaleRoom;
-        }
-
+        get => _lbcf[0].Feedback;
         set
         {
-            roomSize = value * scaleRoom + offsetRoom;
-            Update();
+            foreach (var comb in _lbcf)
+                comb.Feedback = value;
         }
+
     }
 
-    public float Damp
+    public float Damping
     {
-        get
-        {
-            return damp / scaleDamp;
-        }
-
+        get => _lbcf[0].Damping;
         set
         {
-            damp = value * scaleDamp;
-            Update();
+            foreach (var comb in _lbcf)
+                comb.Damping = value;
         }
     }
 
-    public float Wet
+    // input x4 -> _lbcf[0-4] -> _mixer[0] \
+    //                                      > _mixer[2] -> _ap[0] -> _ap[1] -> _ap[2] -> _ap[3] -> output
+    // input x4 -> _lbcf[5-7] -> _mixer[1] /
+    public Freeverb(ISampleProvider input, float roomSize, float damping) : base(input)
     {
-        get
-        {
-            return wet / scaleWet;
-        }
+        _inputCopy = new DummyWaveProvider32(input.WaveFormat.SampleRate, input.WaveFormat.Channels);
 
-        set
+        _lbcf = new[]
         {
-            wet = value * scaleWet;
-            Update();
-        }
+                new LowPassFeedBackCombFilter(_inputCopy, 1557 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1617 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1491 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1422 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1277 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1356 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1188 * WaveFormat.SampleRate / 44100, roomSize, damping, 23),
+                new LowPassFeedBackCombFilter(_inputCopy, 1116 * WaveFormat.SampleRate / 44100, roomSize, damping, 23)
+            };
+
+        var mixers = new[]
+        {
+                new WaveMixer32(input.WaveFormat.SampleRate, input.WaveFormat.Channels) {Mode = MixerMode.Averaging},
+                new WaveMixer32(input.WaveFormat.SampleRate, input.WaveFormat.Channels) {Mode = MixerMode.Averaging},
+                new WaveMixer32(input.WaveFormat.SampleRate, input.WaveFormat.Channels) {Mode = MixerMode.Averaging}
+            };
+
+        mixers[0].AddInputs(new[] { _lbcf[0], _lbcf[1], _lbcf[2], _lbcf[3] });
+        mixers[1].AddInputs(new[] { _lbcf[4], _lbcf[5], _lbcf[6], _lbcf[7] });
+        mixers[2].AddInputs(new[] { mixers[0], mixers[1] });
+
+        _ap = new AllPassFilterAprox[4];
+
+        _ap[0] = new AllPassFilterAprox(mixers[2], 225 * WaveFormat.SampleRate / 44100, .5f, 23);
+        _ap[1] = new AllPassFilterAprox(_ap[0], 556 * WaveFormat.SampleRate / 44100, .5f, 23);
+        _ap[2] = new AllPassFilterAprox(_ap[1], 441 * WaveFormat.SampleRate / 44100, .5f, 23);
+        _ap[3] = new AllPassFilterAprox(_ap[2], 341 * WaveFormat.SampleRate / 44100, .5f, 23);
     }
 
-    public float Width
+    public override int Read(float[] buffer, int offset, int sampleCount)
     {
-        get
-        {
-            return width;
-        }
+        int inputSamplesRead = Input.Read(buffer, offset, sampleCount);
+        if (inputSamplesRead == 0)
+            return 0;
 
-        set
-        {
-            width = value;
-            Update();
-        }
+        _inputCopy.SetBuffer(buffer, offset, sampleCount);
+
+        var samplesRead = _ap[3].Read(buffer, offset, sampleCount);
+
+        for (var i = 0; i < sampleCount; ++i)
+            buffer[offset + i] = Wet * buffer[offset + i] + (1f - Wet) * _inputCopy.GetBuffer()[i];
+
+        return samplesRead;
     }
 
-
-
-    internal sealed class CombFilter
+    public override float Apply(float sample)
     {
-        private readonly float[] buffer;
-
-        private int bufferIndex;
-        private float filterStore;
-
-        private float feedback;
-        private float damp1;
-        private float damp2;
-
-        public CombFilter(int bufferSize)
-        {
-            buffer = new float[bufferSize];
-
-            bufferIndex = 0;
-            filterStore = 0F;
-
-            feedback = 0F;
-            damp1 = 0F;
-            damp2 = 0F;
-        }
-
-        public void Mute()
-        {
-            Array.Clear(buffer, 0, buffer.Length);
-            filterStore = 0F;
-        }
-
-        public void Process(float[] inputBlock, float[] outputBlock)
-        {
-            var blockIndex = 0;
-            while (blockIndex < outputBlock.Length)
-            {
-                if (bufferIndex == buffer.Length)
-                {
-                    bufferIndex = 0;
-                }
-
-                var srcRem = buffer.Length - bufferIndex;
-                var dstRem = outputBlock.Length - blockIndex;
-                var rem = Math.Min(srcRem, dstRem);
-
-                for (var t = 0; t < rem; t++)
-                {
-                    var blockPos = blockIndex + t;
-                    var bufferPos = bufferIndex + t;
-
-                    var input = inputBlock[blockPos];
-
-                    // The following ifs are to avoid performance problem due to denormalized number.
-                    // The original implementation uses unsafe cast to detect denormalized number.
-                    // I tried to reproduce the original implementation using Unsafe.As,
-                    // but the simple Math.Abs version was faster according to some benchmarks.
-
-                    var output = buffer[bufferPos];
-                    if (MathF.Abs(output) < 1.0E-6F)
-                    {
-                        output = 0F;
-                    }
-
-                    filterStore = output * damp2 + filterStore * damp1;
-                    if (MathF.Abs(filterStore) < 1.0E-6F)
-                    {
-                        filterStore = 0F;
-                    }
-
-                    buffer[bufferPos] = input + filterStore * feedback;
-                    outputBlock[blockPos] += output;
-                }
-
-                bufferIndex += rem;
-                blockIndex += rem;
-            }
-        }
-
-        public float Feedback
-        {
-            get => feedback;
-            set => feedback = value;
-        }
-
-        public float Damp
-        {
-            get => damp1;
-
-            set
-            {
-                damp1 = value;
-                damp2 = 1F - value;
-            }
-        }
-    }
-
-
-
-    internal sealed class AllPassFilter
-    {
-        private readonly float[] buffer;
-
-        private int bufferIndex;
-
-        private float feedback;
-
-        public AllPassFilter(int bufferSize)
-        {
-            buffer = new float[bufferSize];
-
-            bufferIndex = 0;
-
-            feedback = 0F;
-        }
-
-        public void Mute()
-        {
-            Array.Clear(buffer, 0, buffer.Length);
-        }
-
-        public void Process(float[] block)
-        {
-            var blockIndex = 0;
-            while (blockIndex < block.Length)
-            {
-                if (bufferIndex == buffer.Length)
-                {
-                    bufferIndex = 0;
-                }
-
-                var srcRem = buffer.Length - bufferIndex;
-                var dstRem = block.Length - blockIndex;
-                var rem = Math.Min(srcRem, dstRem);
-
-                for (var t = 0; t < rem; t++)
-                {
-                    var blockPos = blockIndex + t;
-                    var bufferPos = bufferIndex + t;
-
-                    var input = block[blockPos];
-
-                    var bufout = buffer[bufferPos];
-                    if (MathF.Abs(bufout) < 1.0E-6F)
-                    {
-                        bufout = 0F;
-                    }
-
-                    block[blockPos] = bufout - input;
-                    buffer[bufferPos] = input + bufout * feedback;
-                }
-
-                bufferIndex += rem;
-                blockIndex += rem;
-            }
-        }
-
-        public float Feedback
-        {
-            get => feedback;
-            set => feedback = value;
-        }
+        throw new NotSupportedException();
     }
 }
