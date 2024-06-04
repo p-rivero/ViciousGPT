@@ -348,11 +348,11 @@ public class Freeverb : WaveEffect32
         if (inputSamplesRead == 0)
             return 0;
 
-        _inputCopy.SetBuffer(buffer, offset, sampleCount);
+        _inputCopy.SetBuffer(buffer, offset, inputSamplesRead);
 
-        var samplesRead = _ap[3].Read(buffer, offset, sampleCount);
+        var samplesRead = _ap[3].Read(buffer, offset, inputSamplesRead);
 
-        for (var i = 0; i < sampleCount; ++i)
+        for (var i = 0; i < samplesRead; ++i)
             buffer[offset + i] = Wet * buffer[offset + i] + (1f - Wet) * _inputCopy.GetBuffer()[i];
 
         return samplesRead;
