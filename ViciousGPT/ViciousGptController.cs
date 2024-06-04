@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using ViciousGPT.ApiClient;
 using ViciousGPT.AudioProcessing;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace ViciousGPT;
 
@@ -31,6 +32,21 @@ internal class ViciousGptController
 
     public async Task<byte[]> AcceptRecording()
     {
+        string input = await GetUserInput();
+        string response = await GetResponse(input);
+        return await SynthesizeWithEffects(response);
+    }
+
+    private async Task<string> GetUserInput()
+    {
+        byte[] audioData = GetTrimmedAudioInput();
+        string transcript = await MeasureTime(() => speechToText.RecognizeSpeech(audioData, UserInputLanguage), "Transcribe");
+        OutputText(transcript, "input_transcript");
+        return transcript;
+    }
+
+    private byte[] GetTrimmedAudioInput()
+    {
         byte[] audioData = recorder.Stop();
         OutputAudio(audioData, "microphoneInput.wav");
 
@@ -38,23 +54,27 @@ internal class ViciousGptController
         OutputAudio(trimmedAudio, "trimmedMicrophoneInput.wav");
         float percentReduction = (1 - (float)trimmedAudio.Length / audioData.Length) * 100;
         Console.WriteLine($"Trimmed file is {percentReduction}% shorter than original file.");
+        return trimmedAudio;
+    }
 
-        string transcript = await MeasureTime(() => speechToText.RecognizeSpeech(audioData, UserInputLanguage), "Transcribe");
-        OutputText(transcript, "input_transcript");
+    private async Task<byte[]> SynthesizeWithEffects(string text)
+    {
+        byte[] rawAudio = await MeasureTime(() => textToSpeech.Synthesize(text), "Synthesize");
+        OutputAudio(rawAudio, "rawResponse.wav");
 
-        string response = await MeasureTime(() => GenerateResponse(transcript), "GenerateResponse");
+        byte[] slowedAudio = MeasureTime(() => audioSpeed.ChangeSpeed(rawAudio, 0.8f), "ChangeSpeed");
+        OutputAudio(slowedAudio, "slowedResponse.wav");
+
+        byte[] processedAudio = MeasureTime(() => audioReverbAndEcho.ApplyReverbAndEcho(slowedAudio), "ApplyReverbAndEcho");
+        OutputAudio(processedAudio, "processedResponse.wav");
+        return processedAudio;
+    }
+
+    private async Task<string> GetResponse(string input)
+    {
+        string response = await MeasureTime(() => GenerateResponse(input), "GenerateResponse");
         OutputText(response, "response");
-
-        byte[] responseAudio = await MeasureTime(() => textToSpeech.Synthesize(response), "Synthesize");
-        OutputAudio(responseAudio, "rawResponse.wav");
-
-        byte[] slowResponseAudio = MeasureTime(() => audioSpeed.ChangeSpeed(responseAudio, 0.8f), "ChangeSpeed");
-        OutputAudio(slowResponseAudio, "slowedResponse.wav");
-
-        byte[] processedResponseAudio = MeasureTime(() => audioReverbAndEcho.ApplyReverbAndEcho(slowResponseAudio), "ApplyReverbAndEcho");
-        OutputAudio(processedResponseAudio, "processedResponse.wav");
-
-        return processedResponseAudio;
+        return response;
     }
 
     private static async Task<T> MeasureTime<T>(Func<Task<T>> action, string actionName)
@@ -92,7 +112,7 @@ internal class ViciousGptController
             File.WriteAllText($"{title}.txt", text);
         }
     }
-
+    
     private async Task<string> GenerateResponse(string input)
     {
         string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguage);
