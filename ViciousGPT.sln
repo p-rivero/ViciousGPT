@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViciousGPT", "ViciousGPT\ViciousGPT.csproj", "{A3DF9E38-299D-4FAC-B05D-07EBBFA3FFBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViciousGPT", "ViciousGPT\ViciousGPT.csproj", "{F8D85D14-558E-424E-9F3E-AF5CEC8B690D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A3DF9E38-299D-4FAC-B05D-07EBBFA3FFBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3DF9E38-299D-4FAC-B05D-07EBBFA3FFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3DF9E38-299D-4FAC-B05D-07EBBFA3FFBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3DF9E38-299D-4FAC-B05D-07EBBFA3FFBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D85D14-558E-424E-9F3E-AF5CEC8B690D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8D85D14-558E-424E-9F3E-AF5CEC8B690D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8D85D14-558E-424E-9F3E-AF5CEC8B690D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8D85D14-558E-424E-9F3E-AF5CEC8B690D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F27F9905-D298-4608-8B3E-31D95FB70E2C}
+		SolutionGuid = {BBBE55B9-4E61-4FCF-98E6-1AC9353D731F}
 	EndGlobalSection
 EndGlobal
