@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
+using System.IO;
 
-namespace ViciousGPT;
+namespace ViciousGPT.AudioProcessing;
 
 public class MicrophoneRecorder
 {

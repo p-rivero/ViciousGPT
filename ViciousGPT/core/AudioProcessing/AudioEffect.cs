@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave.SampleProviders;
 using NAudio.Wave;
+using System.IO;
 
 namespace ViciousGPT.AudioProcessing;
 

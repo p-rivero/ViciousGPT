@@ -1,4 +1,6 @@
-﻿namespace ViciousGPT.ApiClient;
+﻿using System.IO;
+
+namespace ViciousGPT.ApiClient;
 
 internal class ApiClient
 {

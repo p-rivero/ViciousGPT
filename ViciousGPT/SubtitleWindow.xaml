@@ -1,16 +1,18 @@
-﻿<Window x:Class="ViciousGPT.MainWindow"
+﻿<Window x:Class="ViciousGPT.SubtitleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ViciousGPT"
         mc:Ignorable="d"
-        Title="ViciousGPT" Height="450" Width="800"
+        Title="ViciousGPT Subtitles" Height="362" Width="859"
         AllowsTransparency="True" WindowStyle="None">
     <Window.Background>
         <SolidColorBrush Opacity="0.5" Color="White"/>
     </Window.Background>
     <Grid>
+        <TextBlock x:Name="subtitleText" TextWrapping="WrapWithOverflow" TextAlignment="Center" Margin="10,50,10,50">
+        </TextBlock>
 
     </Grid>
 </Window>

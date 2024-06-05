@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using ViciousGPT.ApiClient;
 using ViciousGPT.AudioProcessing;
-using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace ViciousGPT;
 
@@ -10,7 +10,7 @@ internal class ViciousGptController
     public bool OutputIntermediaryResults { get; set; } = false;
 
     public string UserInputLanguage { get; set; } = "es-ES";
-    public string UserCharatcterName { get; set; } = "TODO";
+    public string UserCharatcterName { get; set; } = "Tav";
 
     private readonly MicrophoneRecorder recorder = new();
     private readonly AudioTrimmer trimmer = new();
@@ -30,11 +30,11 @@ internal class ViciousGptController
         recorder.Stop();
     }
 
-    public async Task<byte[]> AcceptRecording()
+    public async Task<(string, byte[])> AcceptRecording()
     {
         string input = await GetUserInput();
         string response = await GetResponse(input);
-        return await SynthesizeWithEffects(response);
+        return (response, await SynthesizeWithEffects(response));
     }
 
     private async Task<string> GetUserInput()

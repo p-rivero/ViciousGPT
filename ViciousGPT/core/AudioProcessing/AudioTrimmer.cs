@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using System.IO;
 
 namespace ViciousGPT.AudioProcessing;
 
