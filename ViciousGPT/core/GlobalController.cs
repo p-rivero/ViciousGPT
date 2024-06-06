@@ -1,11 +1,13 @@
-﻿using ViciousGPT.AudioProcessing;
+﻿using System.Windows;
+using ViciousGPT.AudioProcessing;
 
 namespace ViciousGPT;
 
-class GlobalController
+class GlobalController(Window owner) : IDisposable
 {
     private readonly ViciousGptController controller = new();
     private readonly AudioPlayer audioPlayer = new();
+    private readonly Window owner = owner;
     private readonly SubtitleWindow subtitleWindow = new();
 
     private State state = State.Idle;
@@ -46,6 +48,7 @@ class GlobalController
     {
         controller.StartRecording();
         subtitleWindow.Show("Thou shall speak now.");
+        subtitleWindow.Owner = owner;
         state = State.Recording;
     }
 
@@ -53,16 +56,18 @@ class GlobalController
     {
         state = State.Idle;
         controller.CancelRecording();
+        subtitleWindow.Hide();
     }
 
     private async Task AcceptRecording()
     {
         state = State.Processing;
-        subtitleWindow.Show(controller.UserCharatcterName + " is thinking...");
+        subtitleWindow.Show($"[{CharacterName} is thinking...]");
         var (response, audio) = await controller.AcceptRecording();
         state = State.Speaking;
-        subtitleWindow.Show(response);
+        subtitleWindow.Show($"{CharacterName}: {response}");
         await audioPlayer.Play(audio);
+        subtitleWindow.Hide();
         state = State.Idle;
     }
 
@@ -70,6 +75,21 @@ class GlobalController
     {
         state = State.Idle;
         audioPlayer.Stop();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            audioPlayer.Dispose();
+            subtitleWindow.Close();
+        }
     }
 
     private enum State

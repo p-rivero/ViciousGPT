@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:ViciousGPT"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <FontFamily x:Key="Aldine721">pack://application:,,,/fonts/#Aldine721 BT</FontFamily>
     </Application.Resources>
 </Application>

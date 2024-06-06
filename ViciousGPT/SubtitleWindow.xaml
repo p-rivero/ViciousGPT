@@ -8,11 +8,25 @@
         Title="ViciousGPT Subtitles" Height="362" Width="859"
         AllowsTransparency="True" WindowStyle="None">
     <Window.Background>
-        <SolidColorBrush Opacity="0.5" Color="White"/>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#00000000" Offset="0.0" />
+            <GradientStop Color="#F0000000" Offset="0.7" />
+        </LinearGradientBrush>
     </Window.Background>
     <Grid>
-        <TextBlock x:Name="subtitleText" TextWrapping="WrapWithOverflow" TextAlignment="Center" Margin="10,50,10,50">
-        </TextBlock>
+        <Border BorderBrush="{x:Null}" Margin="10,50,10,10">
+            <local:OutlinedTextBlock
+                x:Name="subtitleText"
+                TextWrapping="WrapWithOverflow"
+                TextAlignment="Center"
+                VerticalAlignment="Center"
+                FontFamily="{StaticResource Aldine721}"
+                FontSize="30.0"
+                Fill="White"
+                Stroke="Black"
+                StrokeThickness="4">
+            </local:OutlinedTextBlock>
+        </Border>
 
     </Grid>
 </Window>

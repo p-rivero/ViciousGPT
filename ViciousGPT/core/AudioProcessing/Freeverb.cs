@@ -212,7 +212,7 @@ public class WaveMixer32 : WaveProvider32
 
     public int InputCount => _inputs.Count;
 
-    public override int Read(float[] buffer, int offset, int count)
+    public override int Read(float[] buffer, int offset, int sampleCount)
     {
         if (_toAdd.Count != 0)
         {
@@ -225,24 +225,24 @@ public class WaveMixer32 : WaveProvider32
             _toRemove.Clear();
         }
 
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < sampleCount; ++i)
             buffer[offset + i] = 0;
 
-        var readBuffer = new float[count];
+        var readBuffer = new float[sampleCount];
 
         foreach (var input in _inputs)
         {
-            input.Read(readBuffer, 0, count);
+            input.Read(readBuffer, 0, sampleCount);
 
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < sampleCount; ++i)
                 buffer[offset + i] += readBuffer[i];
         }
 
         if (Mode == MixerMode.Averaging && _inputs.Count != 0)
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < sampleCount; ++i)
                 buffer[offset + i] /= _inputs.Count;
 
-        return count;
+        return sampleCount;
     }
 }
 

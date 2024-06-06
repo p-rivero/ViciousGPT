@@ -17,4 +17,8 @@
     <PackageReference Include="SoundTouch.Net" Version="2.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="fonts\aldine-721-bt.ttf" />
+  </ItemGroup>
+
 </Project>

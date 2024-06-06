@@ -1,35 +1,37 @@
-﻿using System.Text;
+﻿using System.Drawing;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Forms;
 
-namespace ViciousGPT
+namespace ViciousGPT;
+
+public partial class SubtitleWindow : Window
 {
-    public partial class SubtitleWindow : Window
+    public string FollowWindowTitle { get; set; } = "Microsoft";
+
+    public SubtitleWindow()
     {
-        public SubtitleWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        public void Show(string text)
-        {
-            subtitleText.Text = text;
-            // TODO: Move to the correct window and adjust the width
-            base.Show();
-            Topmost = true;
-        }
+    public void Show(string text)
+    {
+        subtitleText.Text = text;
+        Screen targetScreen = WindowMover.GetScreenContaining(FollowWindowTitle);
+        AdjustSizes(targetScreen.Bounds);
+        base.Show();
+        WindowMover.MoveToScreenBottom(this, targetScreen);
+        Topmost = true;
+    }
 
-        new public void Hide()
-        {
-            base.Hide();
-            Topmost = false;
-        }
+    new public void Hide()
+    {
+        base.Hide();
+        Topmost = false;
+    }
+
+    private void AdjustSizes(Rectangle screenBounds)
+    {
+        Height = (double)screenBounds.Height / 4;
+        subtitleText.FontSize = Height / 7;
     }
 }

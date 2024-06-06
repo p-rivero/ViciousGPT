@@ -5,11 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ViciousGPT"
         mc:Ignorable="d"
-        Title="ViciousGPT" Height="450" Width="800"
-        AllowsTransparency="True" WindowStyle="None">
-    <Window.Background>
-        <SolidColorBrush Opacity="0.5" Color="White"/>
-    </Window.Background>
+        Title="ViciousGPT" Height="450" Width="800">
     <Grid>
 
     </Grid>
