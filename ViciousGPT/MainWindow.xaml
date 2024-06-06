@@ -4,9 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ViciousGPT"
+        xmlns:properties="clr-namespace:ViciousGPT.Properties"
         mc:Ignorable="d"
-        Title="ViciousGPT" Height="450" Width="800">
+        Title="ViciousGPT" Height="450" Width="692">
     <Grid>
+        <TextBox x:Name="characterNameBox" HorizontalAlignment="Left" Margin="158,20,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"
+                 Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharacterName, Mode=TwoWay}" RenderTransformOrigin="0.992,0.67"/>
+        <Label Content="1. Name your character:" Margin="4,16,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="149"/>
+        <TextBlock Margin="10,47,10,0"  VerticalAlignment="Top">
+            When talking, you can use this name to refer to your character.
+        </TextBlock>
+        <Label Content="3. How to use:" Margin="4,218,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="239"/>
+        <TextBlock Margin="10,252,10,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Keep this program running while you play. The window can be minimized."/><LineBreak/><Run Text="Whenever you want your character to come up with a Vicious Mockery line, press Ctrl+Enter and talk to them, explaining the situation you're in and which enemy you are attacking. Then, press Ctrl+Enter again to confirm, or Ctrl+Alt+Enter to cancel."/><LineBreak/><Run Text="Wait a few seconds for the response to be generated."/></TextBlock>
+        <Label Content="Google Cloud service account JSON:" Margin="4,104,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="219"/>
+        <Label Content="OpenAI key:" Margin="4,135,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87"/>
+        <Label Content="2. Add your credentials:" Margin="4,77,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="219"/>
+        <TextBlock Margin="10,168,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Make sure to keep those credentials secret. You shouldn't enter them on an app you don't trust (not even this one!) without checking its source code first."/>
+        <PasswordBox x:Name="openAiKeyBox" HorizontalAlignment="Left" Margin="82,139,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.992,0.67"/>
+        <Button x:Name="selectFileButton" Content="Select file" HorizontalAlignment="Left" Margin="212,107,0,0" VerticalAlignment="Top" Width="57" Click="selectFileButton_Click"/>
+        <Label x:Name="selectFileDone" Content="(Done)" Margin="274,104,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87" Visibility="Hidden" FontWeight="Bold"/>
 
     </Grid>
 </Window>
