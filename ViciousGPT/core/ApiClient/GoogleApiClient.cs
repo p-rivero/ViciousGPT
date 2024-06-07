@@ -1,12 +1,12 @@
-﻿namespace ViciousGPT.ApiClient;
+﻿using ViciousGPT.Properties;
 
-internal abstract class GoogleApiClient : ApiClient
+namespace ViciousGPT.ApiClient;
+
+internal abstract class GoogleApiClient
 {
-    private const string GOOGLE_API_KEY_FILE = "google-credentials.json";
-
-    protected GoogleApiClient()
+    protected static void SetCredentialsEnv()
     {
-        string jsonKeyPath = GetKeyPath(GOOGLE_API_KEY_FILE);
+        string jsonKeyPath = Settings.Default.GoogleServiceAccountPath;
         Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath);
     }
 }

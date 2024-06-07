@@ -2,15 +2,16 @@
 using System.IO;
 using ViciousGPT.ApiClient;
 using ViciousGPT.AudioProcessing;
+using ViciousGPT.Properties;
 
 namespace ViciousGPT;
 
 internal class ViciousGptController
 {
-    public bool OutputIntermediaryResults { get; set; } = false;
+    public bool OutputIntermediaryResults { get; set; } = true;
 
     public string UserInputLanguage { get; set; } = "es-ES";
-    public string UserCharatcterName { get; set; } = "Tav";
+    public static string UserCharatcterName => Settings.Default.CharacterName;
 
     private readonly MicrophoneRecorder recorder = new();
     private readonly AudioTrimmer trimmer = new();

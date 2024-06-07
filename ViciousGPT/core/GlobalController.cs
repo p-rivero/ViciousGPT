@@ -12,10 +12,9 @@ class GlobalController(Window owner) : IDisposable
 
     private State state = State.Idle;
 
-    public string CharacterName
+    public static string CharacterName
     {
-        get => controller.UserCharatcterName;
-        set => controller.UserCharatcterName = value;
+        get => ViciousGptController.UserCharatcterName;
     }
 
     public async void OnTriggered()

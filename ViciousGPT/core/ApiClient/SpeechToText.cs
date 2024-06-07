@@ -6,12 +6,7 @@ namespace ViciousGPT.ApiClient;
 
 internal class SpeechToText : GoogleApiClient
 {
-    private readonly SpeechClient speechClient;
-
-    public SpeechToText()
-    {
-        speechClient = SpeechClient.Create();
-    }
+    private readonly Lazy<SpeechClient> speechClient = new(GetClient);
 
     public async Task<string> RecognizeSpeech(byte[] audioData, string isoLanguageCode)
     {
@@ -32,7 +27,7 @@ internal class SpeechToText : GoogleApiClient
             Content = audioBytes
         };
 
-        RecognizeResponse response = await speechClient.RecognizeAsync(request);
+        RecognizeResponse response = await speechClient.Value.RecognizeAsync(request);
 
         StringBuilder transcriptBuilder = new();
         foreach (SpeechRecognitionResult result in response.Results)
@@ -44,5 +39,10 @@ internal class SpeechToText : GoogleApiClient
             }
         }
         return transcriptBuilder.ToString();
+    }
+    private static SpeechClient GetClient()
+    {
+        SetCredentialsEnv();
+        return SpeechClient.Create();
     }
 }

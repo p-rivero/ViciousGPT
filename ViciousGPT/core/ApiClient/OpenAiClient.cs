@@ -2,26 +2,18 @@
 using OpenAI;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.ObjectModels;
-using static OpenAI.ObjectModels.SharedModels.IOpenAiModels;
+using ViciousGPT.Properties;
 
 namespace ViciousGPT.ApiClient;
 
-internal class OpenAiClient : ApiClient
+internal class OpenAiClient
 {
-    private const string OPENAI_API_KEY_FILE = "openai-key.txt";
-
     private static readonly string MODEL = Models.Gpt_3_5_Turbo;
 
     // Higher is more random
     private const float TEMPERATURE = 0.7f;
 
-    private readonly OpenAIService openAiService;
-
-    public OpenAiClient()
-    {
-        OpenAiOptions options = new() { ApiKey = GetKey(OPENAI_API_KEY_FILE) };
-        openAiService = new(options);
-    }
+    private readonly Lazy<OpenAIService> openAiService = new(GetService);
 
     public async Task<string> CompletePrompt(string systemPrompt, string userPrompt)
     {
@@ -42,7 +34,7 @@ internal class OpenAiClient : ApiClient
                 }
             }
         };
-        var response = await openAiService.ChatCompletion.CreateCompletion(request);
+        var response = await openAiService.Value.ChatCompletion.CreateCompletion(request);
         if (!response.Successful)
         {
             throw new ArgumentException("Failed to complete prompt. Error: " + response.Error?.ToString());
@@ -52,6 +44,12 @@ internal class OpenAiClient : ApiClient
             throw new ArgumentException("Failed to complete prompt. No choices returned.");
         }
         return response.Choices[0].Message.Content ?? throw new ArgumentException("Failed to complete prompt. No content returned.");
+    }
+
+    private static OpenAIService GetService()
+    {
+        OpenAiOptions options = new() { ApiKey = Settings.Default.OpenAiKey };
+        return new OpenAIService(options);
     }
 
 }

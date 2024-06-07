@@ -5,7 +5,7 @@ namespace ViciousGPT.AudioProcessing;
 
 public class MicrophoneRecorder
 {
-    private static readonly WaveFormat RECORDING_FORMAT = new(44100, 1); // 44.1kHz, Mono
+    private static readonly WaveFormat RECORDING_FORMAT = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1); // 44.1kHz, Mono
 
     private readonly WaveInEvent waveIn = new() { WaveFormat = RECORDING_FORMAT };
     private readonly MemoryStream memoryStream = new();
