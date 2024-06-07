@@ -10,12 +10,14 @@ internal class ViciousGptController
 {
     public bool OutputIntermediaryResults { get; set; } = true;
 
-    public string UserInputLanguage { get; set; } = "es-ES";
+    public string UserInputLanguageIso { get; set; } = "es";
+
     public static string UserCharatcterName => Settings.Default.CharacterName;
+
+    public static int[] SelectedActs => [1, 2, 3]; // TODO
 
     private readonly MicrophoneRecorder recorder = new();
     private readonly AudioTrimmer trimmer = new();
-    private readonly SpeechToText speechToText = new();
     private readonly OpenAiClient openAiClient = new();
     private readonly TextToSpeech textToSpeech = new();
     private readonly AudioReverbAndEcho audioReverbAndEcho = new();
@@ -41,7 +43,7 @@ internal class ViciousGptController
     private async Task<string> GetUserInput()
     {
         byte[] audioData = GetTrimmedAudioInput();
-        string transcript = await MeasureTime(() => speechToText.RecognizeSpeech(audioData, UserInputLanguage), "Transcribe");
+        string transcript = await MeasureTime(() => openAiClient.TranscribeAudio(audioData, UserInputLanguageIso), "Transcribe");
         OutputText(transcript, "input_transcript");
         return transcript;
     }
@@ -116,7 +118,7 @@ internal class ViciousGptController
     
     private async Task<string> GenerateResponse(string input)
     {
-        string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguage);
+        string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguageIso, SelectedActs);
         return await openAiClient.CompletePrompt(systemPrompt, input);
     }
 }

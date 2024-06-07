@@ -1,8 +1,9 @@
 ﻿using Google.Cloud.TextToSpeech.V1;
+using ViciousGPT.Properties;
 
 namespace ViciousGPT.ApiClient;
 
-internal class TextToSpeech : GoogleApiClient
+internal class TextToSpeech
 {
     private readonly Lazy<TextToSpeechClient> speechClient = new(GetClient);
 
@@ -25,7 +26,8 @@ internal class TextToSpeech : GoogleApiClient
 
     private static TextToSpeechClient GetClient()
     {
-        SetCredentialsEnv();
+        string jsonKeyPath = Settings.Default.GoogleServiceAccountPath;
+        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath);
         return TextToSpeechClient.Create();
     }
 }

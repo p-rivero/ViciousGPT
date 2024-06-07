@@ -8,8 +8,6 @@ namespace ViciousGPT.ApiClient;
 
 internal class OpenAiClient
 {
-    private static readonly string MODEL = Models.Gpt_3_5_Turbo;
-
     // Higher is more random
     private const float TEMPERATURE = 0.7f;
 
@@ -19,7 +17,7 @@ internal class OpenAiClient
     {
         ChatCompletionCreateRequest request = new()
         {
-            Model = MODEL,
+            Model = Models.Gpt_3_5_Turbo,
             Temperature = TEMPERATURE,
             Messages = new List<ChatMessage>
             {
@@ -44,6 +42,25 @@ internal class OpenAiClient
             throw new ArgumentException("Failed to complete prompt. No choices returned.");
         }
         return response.Choices[0].Message.Content ?? throw new ArgumentException("Failed to complete prompt. No content returned.");
+    }
+    
+    public async Task<string> TranscribeAudio(byte[] audioData, string isoLanguageCode)
+    {
+        AudioCreateTranscriptionRequest request = new()
+        {
+            Model = Models.WhisperV1,
+            File = audioData,
+            FileName = "audio.wav",
+            Language = isoLanguageCode,
+            //Prompt = prompt, // TODO: see if this is needed
+            ResponseFormat = "text"
+        };
+        var response = await openAiService.Value.CreateTranscription(request);
+        if (!response.Successful)
+        {
+            throw new ArgumentException("Failed to transcribe audio. Error: " + response.Error?.ToString());
+        }
+        return response.Text;
     }
 
     private static OpenAIService GetService()
