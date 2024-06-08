@@ -12,6 +12,8 @@ internal class ViciousGptController
 
     public string UserInputLanguageIso { get; set; } = "es";
 
+    public float SynthesizedVoiceSpeedChange { get; set; } = 0.85f;
+
     public static string UserCharatcterName => Settings.Default.CharacterName;
 
     public static int[] SelectedActs => [1, 2, 3]; // TODO
@@ -65,7 +67,7 @@ internal class ViciousGptController
         byte[] rawAudio = await MeasureTime(() => textToSpeech.Synthesize(text), "Synthesize");
         OutputAudio(rawAudio, "rawResponse.wav");
 
-        byte[] slowedAudio = MeasureTime(() => audioSpeed.ChangeSpeed(rawAudio, 0.8f), "ChangeSpeed");
+        byte[] slowedAudio = MeasureTime(() => audioSpeed.ChangeSpeed(rawAudio, SynthesizedVoiceSpeedChange), "ChangeSpeed");
         OutputAudio(slowedAudio, "slowedResponse.wav");
 
         byte[] processedAudio = MeasureTime(() => audioReverbAndEcho.ApplyReverbAndEcho(slowedAudio), "ApplyReverbAndEcho");

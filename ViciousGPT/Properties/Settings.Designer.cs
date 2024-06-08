@@ -58,5 +58,41 @@ namespace ViciousGPT.Properties {
                 this["GoogleServiceAccountPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SelectedAct1 {
+            get {
+                return ((bool)(this["SelectedAct1"]));
+            }
+            set {
+                this["SelectedAct1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SelectedAct2 {
+            get {
+                return ((bool)(this["SelectedAct2"]));
+            }
+            set {
+                this["SelectedAct2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SelectedAct3 {
+            get {
+                return ((bool)(this["SelectedAct3"]));
+            }
+            set {
+                this["SelectedAct3"] = value;
+            }
+        }
     }
 }
