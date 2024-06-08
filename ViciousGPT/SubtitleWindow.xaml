@@ -14,7 +14,7 @@
         </LinearGradientBrush>
     </Window.Background>
     <Grid>
-        <Border BorderBrush="{x:Null}" Margin="10,50,10,10">
+        <Border BorderBrush="{x:Null}" Margin="100,50,100,10">
             <local:OutlinedTextBlock
                 x:Name="subtitleText"
                 TextWrapping="WrapWithOverflow"

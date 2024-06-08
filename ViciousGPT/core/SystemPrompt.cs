@@ -2,7 +2,7 @@ namespace ViciousGPT;
 
 internal static class SystemPrompt
 {
-    public static string GetSystemPrompt(string characterName, string userInputLanguage, int[] selectedActs) => $"""
+    public static string GetSystemPrompt(string characterName, string userInputLanguage, IEnumerable<int> selectedActs) => $"""
         You are {characterName}, a Vicious Mockery assistant in Baldur's Gate 3, a game based on Dungeons & Dragons. The user will tell you the enemy they are facing, and you will respond with a sick burn that completely demoralizes the enemy.
         You are allowed to use profanity, but it's not required.
 
@@ -33,11 +33,11 @@ internal static class SystemPrompt
         public string GetPrompt() => $"{Name}: {Description}\n> {Insecurities}";
     }
 
-    private sealed record EnemyList(Enemy[] list)
+    private sealed record EnemyList(Enemy[] List)
     {
-        public string GetPrompt(int[] selectedActs)
+        public string GetPrompt(IEnumerable<int> selectedActs)
         {
-            var enemies = list.Where(e => e.Acts.Intersect(selectedActs).Any());
+            var enemies = List.Where(e => e.Acts.Intersect(selectedActs).Any());
             return string.Join("\n\n", enemies.Select(e => e.GetPrompt()));
         }
     }

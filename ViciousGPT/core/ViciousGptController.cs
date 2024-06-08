@@ -16,7 +16,16 @@ internal class ViciousGptController
 
     public static string UserCharatcterName => Settings.Default.CharacterName;
 
-    public static int[] SelectedActs => [1, 2, 3]; // TODO
+    public static List<int> SelectedActs {
+        get
+        {
+            List<int> result = [];
+            if (Settings.Default.SelectedAct1) result.Add(1);
+            if (Settings.Default.SelectedAct2) result.Add(2);
+            if (Settings.Default.SelectedAct3) result.Add(3);
+            return result;
+        }
+    }
 
     private readonly MicrophoneRecorder recorder = new();
     private readonly AudioTrimmer trimmer = new();

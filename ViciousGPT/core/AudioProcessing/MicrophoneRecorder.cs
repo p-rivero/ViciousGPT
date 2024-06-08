@@ -7,38 +7,41 @@ public class MicrophoneRecorder
 {
     private static readonly WaveFormat RECORDING_FORMAT = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1); // 44.1kHz, Mono
 
-    private readonly WaveInEvent waveIn = new() { WaveFormat = RECORDING_FORMAT };
-    private readonly MemoryStream memoryStream = new();
-    private readonly WaveFileWriter waveFileWriter;
-
-    public MicrophoneRecorder()
-    {
-        waveFileWriter = new WaveFileWriter(memoryStream, RECORDING_FORMAT);
-        waveIn.DataAvailable += OnDataAvailable;
-    }
+    private WaveInEvent? waveIn;
+    private MemoryStream? memoryStream;
+    private WaveFileWriter? waveFileWriter;
 
     public void Start()
     {
-        waveIn.StartRecording();
+        Initialize();
+        waveIn!.StartRecording();
     }
 
     public byte[] Stop()
     {
-        waveIn.StopRecording();
+        waveIn!.StopRecording();
         waveIn.Dispose();
 
-        waveFileWriter.Flush();
+        waveFileWriter!.Flush();
         waveFileWriter.Close();
         waveFileWriter.Dispose();
 
-        byte[] audioData = memoryStream.ToArray();
+        byte[] audioData = memoryStream!.ToArray();
         memoryStream.Dispose();
 
         return audioData;
     }
 
+    private void Initialize()
+    {
+        waveIn = new() { WaveFormat = RECORDING_FORMAT };
+        memoryStream = new();
+        waveFileWriter = new WaveFileWriter(memoryStream, RECORDING_FORMAT);
+        waveIn.DataAvailable += OnDataAvailable;
+    }
+
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
+        waveFileWriter!.Write(e.Buffer, 0, e.BytesRecorded);
     }
 }
