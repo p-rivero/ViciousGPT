@@ -4,6 +4,7 @@ using ViciousGPT.Properties;
 using static ViciousGPT.GlobalHotkeyManager;
 using Microsoft.Win32;
 using System.IO;
+using System.Diagnostics;
 
 
 namespace ViciousGPT;
@@ -16,7 +17,9 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
+        TraceConfiguration.Register();
         InitializeComponent();
+        Trace.TraceInformation("Starting GlobalController");
         globalController = new GlobalController(this);
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;

@@ -67,7 +67,7 @@ internal class ViciousGptController
         byte[] trimmedAudio = MeasureTime(() => trimmer.TrimSilence(audioData), "TrimSilence");
         OutputAudio(trimmedAudio, "trimmedMicrophoneInput.wav");
         float percentReduction = (1 - (float)trimmedAudio.Length / audioData.Length) * 100;
-        Console.WriteLine($"Trimmed file is {percentReduction}% shorter than original file.");
+        Trace.TraceInformation($"Trimmed file is {percentReduction}% shorter than original file.");
         return trimmedAudio;
     }
 
@@ -95,7 +95,7 @@ internal class ViciousGptController
     {
         var stopWatch = Stopwatch.StartNew();
         T result = await action();
-        Console.WriteLine($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
+        Trace.TraceInformation($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
         return result;
     }
     
@@ -103,7 +103,7 @@ internal class ViciousGptController
     {
         var stopWatch = Stopwatch.StartNew();
         T result = action();
-        Console.WriteLine($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
+        Trace.TraceInformation($"{actionName} took {stopWatch.Elapsed.TotalMilliseconds} ms");
         return result;
     }
 
@@ -111,16 +111,16 @@ internal class ViciousGptController
     {
         if (OutputIntermediaryResults)
         {
-            Console.WriteLine($"Outputting file {fileName}");
+            Trace.TraceInformation($"Outputting file {fileName}");
             File.WriteAllBytes(fileName, audioData);
         }
     }
 
     private void OutputText(string text, string title)
     {
-        Console.WriteLine($"{title.ToUpper()}:");
-        Console.WriteLine(text);
-        Console.WriteLine("=====================================");
+        Trace.TraceInformation($"{title.ToUpper()}:");
+        Trace.TraceInformation(text);
+        Trace.TraceInformation("=====================================");
         if (OutputIntermediaryResults)
         {
             File.WriteAllText($"{title}.txt", text);

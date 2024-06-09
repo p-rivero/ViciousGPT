@@ -1,3 +1,5 @@
 .vs
 ViciousGPT/bin
 ViciousGPT/obj
+**/*.csproj.user
+**/*.pubxml.user

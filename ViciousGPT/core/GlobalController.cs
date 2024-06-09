@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using ViciousGPT.AudioProcessing;
 
 namespace ViciousGPT;
@@ -19,27 +20,40 @@ class GlobalController(Window owner) : IDisposable
 
     public async void OnTriggered()
     {
-        switch (state)
+        try
         {
-            case State.Idle:
-                StartRecording();
-                break;
-            case State.Recording:
-                await AcceptRecording();
-                break;
+            switch (state)
+            {
+                case State.Idle:
+                    StartRecording();
+                    break;
+                case State.Recording:
+                    await AcceptRecording();
+                    break;
+            }
+        } catch (Exception e)
+        {
+            HandleError(e);
         }
     }
 
     public void OnCancelled()
     {
-        switch (state)
+        try
         {
-            case State.Recording:
-                StopRecording();
-                break;
-            case State.Speaking:
-                StopSpeaking();
-                break;
+            switch (state)
+            {
+                case State.Recording:
+                    StopRecording();
+                    break;
+                case State.Speaking:
+                    StopSpeaking();
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            HandleError(e);
         }
     }
 
@@ -74,6 +88,13 @@ class GlobalController(Window owner) : IDisposable
     {
         state = State.Idle;
         audioPlayer.Stop();
+    }
+
+    private static void HandleError(Exception e)
+    {
+        MessageBox.Show("An error occurred: " + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        Trace.TraceError(e.ToString());
+        Trace.TraceError(e.StackTrace);
     }
 
     public void Dispose()
