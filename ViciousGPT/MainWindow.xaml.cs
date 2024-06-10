@@ -17,7 +17,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        TraceConfiguration.Register();
+        IntializeTrace();
         InitializeComponent();
         Trace.TraceInformation("Starting GlobalController");
         globalController = new GlobalController(this);
@@ -32,6 +32,15 @@ public partial class MainWindow : Window
     private void RefreshSelectFileDoneVisibility()
     {
         selectFileDone.Visibility = Settings.Default.GoogleServiceAccountPath.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+    }
+
+    private static void IntializeTrace()
+    {
+        if (GlobalController.OutputLogFile)
+        {
+            Trace.Listeners.Add(new TextWriterTraceListener("ViciousGPT.log"));
+            Trace.AutoFlush = true;
+        }
     }
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)

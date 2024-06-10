@@ -18,6 +18,8 @@ class GlobalController(Window owner) : IDisposable
         get => ViciousGptController.UserCharatcterName;
     }
 
+    public static bool OutputLogFile => ViciousGptController.OutputLogFile;
+
     public async void OnTriggered()
     {
         try

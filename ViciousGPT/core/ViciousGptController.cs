@@ -8,7 +8,8 @@ namespace ViciousGPT;
 
 internal class ViciousGptController
 {
-    public bool OutputIntermediaryResults { get; set; } = true;
+    public static bool OutputLogFile { get; set; } = true;
+    public static bool OutputIntermediaryResults { get; set; } = true;
 
     public string UserInputLanguageIso { get; set; } = "es";
 
