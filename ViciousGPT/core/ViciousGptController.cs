@@ -67,7 +67,7 @@ internal class ViciousGptController
         byte[] trimmedAudio = MeasureTime(() => trimmer.TrimSilence(audioData), "TrimSilence");
         OutputAudio(trimmedAudio, "trimmedMicrophoneInput.wav");
         float percentReduction = (1 - (float)trimmedAudio.Length / audioData.Length) * 100;
-        Trace.TraceInformation($"Trimmed file is {percentReduction}% shorter than original file.");
+        Trace.TraceInformation($"Trimmed file is {percentReduction}% smaller than original file.");
         return trimmedAudio;
     }
 

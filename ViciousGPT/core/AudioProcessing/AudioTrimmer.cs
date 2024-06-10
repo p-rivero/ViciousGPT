@@ -26,8 +26,7 @@ internal class AudioTrimmer : AudioEffect
         List<float> sampleBuffer = [];
 
         int samplesRead;
-        bool inSilence = true;
-        int silenceSamples = 0;
+        int currentSilenceSamples = silenceDuration; // Start assuming we are in silence
 
         while ((samplesRead = sampleProvider.Read(buffer, 0, buffer.Length)) > 0)
         {
@@ -35,20 +34,15 @@ internal class AudioTrimmer : AudioEffect
             {
                 if (Math.Abs(buffer[i]) < threshold)
                 {
-                    silenceSamples++;
-                    if (silenceSamples > silenceDuration && inSilence)
-                    {
-                        silenceSamples = 0;
-                    }
-                    else if (silenceSamples <= silenceDuration)
+                    currentSilenceSamples++;
+                    if (currentSilenceSamples <= silenceDuration)
                     {
                         sampleBuffer.Add(buffer[i]);
                     }
                 }
                 else
                 {
-                    inSilence = false;
-                    silenceSamples = 0;
+                    currentSilenceSamples = 0;
                     sampleBuffer.Add(buffer[i]);
                 }
             }
