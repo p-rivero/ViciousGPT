@@ -4,14 +4,26 @@ using ViciousGPT.AudioProcessing;
 
 namespace ViciousGPT;
 
-class GlobalController(Window owner) : IDisposable
+class GlobalController : IDisposable
 {
     private readonly ViciousGptController controller = new();
-    private readonly AudioPlayer audioPlayer = new();
-    private readonly Window owner = owner;
+    private readonly AudioPlayer voiceAudioPlayer = new();
+    private readonly AudioPlayer sfxAudioPlayer = new();
+    private readonly LoopingAudioPlayer loopAudioPlayer = new();
+    private readonly Window owner;
     private readonly SubtitleWindow subtitleWindow = new();
 
+    public GlobalController(Window owner)
+    {
+        this.owner = owner;
+        loopAudioPlayer.Start(Properties.Resources.bard_loop);
+    }
+
     private State state = State.Idle;
+
+    public int DelayAfterSfx { get; set; } = 200;
+    public int FadeInBackgroundLoop { get; set; } = 1000;
+    public int FadeOutBackgroundLoop { get; set; } = 1000;
 
     public static string CharacterName
     {
@@ -61,6 +73,7 @@ class GlobalController(Window owner) : IDisposable
 
     private void StartRecording()
     {
+        _ = loopAudioPlayer.FadeIn(FadeInBackgroundLoop);
         controller.StartRecording();
         subtitleWindow.Show("Thou shall speak now.");
         subtitleWindow.Owner = owner;
@@ -69,6 +82,7 @@ class GlobalController(Window owner) : IDisposable
 
     private void StopRecording()
     {
+        _ = loopAudioPlayer.FadeOut(100);
         state = State.Idle;
         controller.CancelRecording();
         subtitleWindow.Hide();
@@ -76,20 +90,29 @@ class GlobalController(Window owner) : IDisposable
 
     private async Task AcceptRecording()
     {
+        _ = loopAudioPlayer.FadeOut(FadeOutBackgroundLoop);
         state = State.Processing;
         subtitleWindow.Show($"[{CharacterName} is thinking...]");
         var (response, audio) = await controller.AcceptRecording();
         state = State.Speaking;
         subtitleWindow.Show($"{CharacterName}: {response}");
-        await audioPlayer.Play(audio);
+        await PlayVoice(audio);
         subtitleWindow.Hide();
         state = State.Idle;
+    }
+
+    private async Task PlayVoice(byte[] audio)
+    {
+        _ = sfxAudioPlayer.Play(Properties.Resources.vicious_mockery);
+        await Task.Delay(DelayAfterSfx);
+        await voiceAudioPlayer.Play(audio);
     }
 
     private void StopSpeaking()
     {
         state = State.Idle;
-        audioPlayer.Stop();
+        sfxAudioPlayer.Stop();
+        voiceAudioPlayer.Stop();
     }
 
     private static void HandleError(Exception e)
@@ -109,7 +132,8 @@ class GlobalController(Window owner) : IDisposable
     {
         if (disposing)
         {
-            audioPlayer.Dispose();
+            sfxAudioPlayer.Dispose();
+            voiceAudioPlayer.Dispose();
             subtitleWindow.Close();
         }
     }
