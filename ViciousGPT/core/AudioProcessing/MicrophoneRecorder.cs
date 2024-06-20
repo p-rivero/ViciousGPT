@@ -19,10 +19,15 @@ public class MicrophoneRecorder
 
     public byte[] Stop()
     {
-        waveIn!.StopRecording();
+        if (waveIn == null || memoryStream == null || waveFileWriter == null)
+        {
+            throw new InvalidOperationException("Called MicrophoneRecorder.Stop() without calling Start() first");
+        }
+
+        waveIn.StopRecording();
         waveIn.Dispose();
 
-        waveFileWriter!.Flush();
+        waveFileWriter.Flush();
         waveFileWriter.Close();
         waveFileWriter.Dispose();
 

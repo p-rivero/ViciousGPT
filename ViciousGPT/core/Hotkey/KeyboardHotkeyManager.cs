@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
-public partial class GlobalHotkeyManager : IDisposable
+public partial class KeyboardHotkeyManager : IDisposable
 {
     public static class Modifier
     {
@@ -34,7 +34,7 @@ public partial class GlobalHotkeyManager : IDisposable
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool UnregisterHotKey(IntPtr hWnd, int id);
 
-    public GlobalHotkeyManager(Window window, uint modifiers, Key key, Action callback)
+    public KeyboardHotkeyManager(Window window, uint modifiers, Key key, Action callback)
     {
         this.callback = callback;
         hotkeyId = new Random().Next(0x0000, 0xBFFF);

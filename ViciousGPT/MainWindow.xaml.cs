@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using ViciousGPT.Properties;
-using static ViciousGPT.GlobalHotkeyManager;
+using static ViciousGPT.KeyboardHotkeyManager;
 using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
@@ -11,8 +11,11 @@ namespace ViciousGPT;
 
 public partial class MainWindow : Window
 {
-    private GlobalHotkeyManager? triggerHotkey;
-    private GlobalHotkeyManager? cancelHotkey;
+    private const uint CONTROLLER_NUMBER = 0; // Between 0 and 3
+
+    private KeyboardHotkeyManager? triggerHotkey;
+    private KeyboardHotkeyManager? cancelHotkey;
+    private readonly ControllerHotkeyManager controllerHotkeys = new(CONTROLLER_NUMBER);
     private readonly GlobalController globalController;
 
     public MainWindow()
@@ -46,8 +49,11 @@ public partial class MainWindow : Window
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         Settings.Default.PropertyChanged += (sender, e) => Settings.Default.Save();
-        triggerHotkey = new GlobalHotkeyManager(this, Modifier.Control, Key.Enter, () => globalController.OnTriggered());
-        cancelHotkey = new GlobalHotkeyManager(this, Modifier.Control|Modifier.Alt, Key.Enter, () => globalController.OnCancelled());
+        triggerHotkey = new KeyboardHotkeyManager(this, Modifier.Control, Key.Enter, () => globalController.OnTriggered());
+        cancelHotkey = new KeyboardHotkeyManager(this, Modifier.Control|Modifier.Alt, Key.Enter, () => globalController.OnCancelled());
+        controllerHotkeys.OnSticksPressed = () => globalController.OnTriggered();
+        controllerHotkeys.OnTriggersPressed = () => globalController.OnCancelled();
+        controllerHotkeys.Start();
     }
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
