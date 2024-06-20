@@ -27,20 +27,24 @@ public partial class WindowMover
     public static void MoveToScreenBottom(Window moveWindow, Screen targetScreen)
     {
         Rectangle screen = targetScreen.Bounds;
-        IntPtr windowToMove = new WindowInteropHelper(moveWindow).Handle;
+        nint windowToMove = new WindowInteropHelper(moveWindow).Handle;
         int windowHeight = (int)moveWindow.Height;
         MoveWindow(windowToMove, screen.Left, screen.Top + screen.Height - windowHeight, screen.Width, windowHeight, true);
     }
 
-    public static Screen GetScreenContaining(string windowTitle)
+    public static Screen? GetScreenContaining(string windowTitle)
     {
-        nint windowHandle = FindWindowContaining(windowTitle);
-        return Screen.FromHandle(windowHandle);
+        nint? windowHandle = FindWindowContaining(windowTitle);
+        if (windowHandle.HasValue)
+        {
+            return Screen.FromHandle(windowHandle.Value);
+        }
+        return null;
     }
 
-    private static nint FindWindowContaining(string searchText)
+    private static nint? FindWindowContaining(string searchText)
     {
-        IntPtr targetHandle = IntPtr.Zero;
+        nint? targetHandle = null;
         EnumWindows((hWnd, lParam) =>
         {
             if (IsWindowVisible(hWnd))
