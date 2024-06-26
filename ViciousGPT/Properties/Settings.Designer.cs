@@ -94,5 +94,41 @@ namespace ViciousGPT.Properties {
                 this["SelectedAct3"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OutputLogFile {
+            get {
+                return ((bool)(this["OutputLogFile"]));
+            }
+            set {
+                this["OutputLogFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OutputIntermediaryResults {
+            get {
+                return ((bool)(this["OutputIntermediaryResults"]));
+            }
+            set {
+                this["OutputIntermediaryResults"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("en")]
+        public string UserInputLanguage {
+            get {
+                return ((string)(this["UserInputLanguage"]));
+            }
+            set {
+                this["UserInputLanguage"] = value;
+            }
+        }
     }
 }

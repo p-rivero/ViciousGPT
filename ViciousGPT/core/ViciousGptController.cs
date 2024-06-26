@@ -8,10 +8,10 @@ namespace ViciousGPT;
 
 internal class ViciousGptController
 {
-    public static bool OutputLogFile { get; set; } = true;
-    public static bool OutputIntermediaryResults { get; set; } = true;
+    public static bool OutputLogFile => Settings.Default.OutputLogFile;
+    public static bool OutputIntermediaryResults => Settings.Default.OutputIntermediaryResults;
 
-    public string UserInputLanguageIso { get; set; } = "es";
+    public string UserInputLanguageIso => Settings.Default.UserInputLanguage;
 
     public float SynthesizedVoiceSpeedChange { get; set; } = 0.85f;
 
