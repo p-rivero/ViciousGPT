@@ -7,30 +7,35 @@
         xmlns:properties="clr-namespace:ViciousGPT.Properties"
         mc:Ignorable="d"
         Title="ViciousGPT" Height="500" Width="700" MinHeight="450" MinWidth="450">
-    <Grid>
-        <TextBox x:Name="characterNameBox" HorizontalAlignment="Left" Margin="158,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"
-                 Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharacterName, Mode=TwoWay}" RenderTransformOrigin="0.992,0.67"/>
-        <Label Content="1. Name your character:" Margin="4,8,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="149"/>
-        <TextBlock Margin="10,39,10,0"  VerticalAlignment="Top">
+    <StackPanel Margin="10,10,10,10">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="1. Name your character:" FontWeight="Bold"/>
+            <TextBox x:Name="characterNameBox" TextWrapping="Wrap" Width="120"
+                 Text="{Binding Source={x:Static properties:Settings.Default}, Path=CharacterName, Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </StackPanel>
+        <TextBlock Margin="10,0,0,0">
             When talking, you can use this name to refer to your character.
         </TextBlock>
-        <Label Content="4. Start using the app:" Margin="4,291,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="239"/>
-        <TextBlock Margin="10,325,10,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Keep this program running while you play. The window can be minimized."/><LineBreak/><Run Text="Whenever you want your character to come up with a Vicious Mockery line, press Ctrl+Enter and talk to them, explaining the situation you're in and which enemy you are attacking. Then, press Ctrl+Enter again to confirm, or Ctrl+Alt+Enter to cancel."/><LineBreak/><Run Text="Wait a few seconds for the response to be generated."/></TextBlock>
-        <Label Content="Google Cloud service account JSON:" Margin="4,96,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="219"/>
-        <Label Content="OpenAI key:" Margin="4,127,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87"/>
-        <Label Content="2. Add your credentials:" Margin="4,69,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="219"/>
-        <TextBlock Margin="10,160,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Make sure to keep those credentials secret. You shouldn't enter them on an app you don't trust (not even this one!) without checking its source code first."/>
-        <PasswordBox x:Name="openAiKeyBox" HorizontalAlignment="Left" Margin="82,131,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.992,0.67"/>
-        <Button x:Name="selectFileButton" Content="Select file" HorizontalAlignment="Left" Margin="212,99,0,0" VerticalAlignment="Top" Width="57" Click="selectFileButton_Click"/>
-        <Label x:Name="selectFileDone" Content="(Done)" Margin="274,96,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="87" Visibility="Hidden" FontWeight="Bold"/>
-        <Label Content="3. (Optional) Select the act(s) you are playing:" Margin="4,204,0,0" VerticalAlignment="Top" FontWeight="Bold" HorizontalAlignment="Left" Width="305"/>
-        <TextBlock Margin="10,261,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="This reduces the amount of data sent to OpenAI (and therefore cost)."/>
-        <CheckBox x:Name="act1Checkbox" Content="Act 1" HorizontalAlignment="Left" Margin="10,238,0,0" VerticalAlignment="Top" 
-                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct1, Mode=TwoWay}"/>
-        <CheckBox x:Name="act2Checkbox" Content="Act 2" HorizontalAlignment="Left" Margin="76,238,0,0" VerticalAlignment="Top" 
-                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct2, Mode=TwoWay}"/>
-        <CheckBox x:Name="act3Checkbox" Content="Act 3" HorizontalAlignment="Left" Margin="142,238,0,0" VerticalAlignment="Top" Width="47" 
-                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct3, Mode=TwoWay}"/>
+        <Label Content="2. Add your credentials:" FontWeight="Bold" Margin="0,20,0,0"/>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Google Cloud service account JSON:" Margin="5,0,0,0"/>
+            <Button x:Name="selectFileButton" Content="Select file" Click="selectFileButton_Click" VerticalAlignment="Center" Margin="10,0,0,0" Width="70"/>
+            <Label x:Name="selectFileDone" Content="(Done)" FontWeight="Bold" Margin="10,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="OpenAI key:" Margin="5,0,0,0"/>
+            <PasswordBox x:Name="openAiKeyBox" Width="150" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </StackPanel>
+        <TextBlock TextWrapping="Wrap" Text="Make sure to keep those credentials secret. You shouldn't enter them on an app you don't trust (not even this one!) without checking its source code first." Margin="10,0,0,0"/>
+        <Label Content="3. (Optional) Select the act(s) you are playing:" FontWeight="Bold" Margin="0,20,0,0"/>
+        <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+            <CheckBox x:Name="act1Checkbox" Content="Act 1" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct1, Mode=TwoWay}" Margin="10,0,0,0"/>
+            <CheckBox x:Name="act2Checkbox" Content="Act 2" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct2, Mode=TwoWay}" Margin="20,0,0,0"/>
+            <CheckBox x:Name="act3Checkbox" Content="Act 3" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=SelectedAct3, Mode=TwoWay}" Margin="20,0,0,0"/>
+        </StackPanel>
+        <TextBlock TextWrapping="Wrap" Text="This reduces the amount of data sent to OpenAI (and therefore cost)." Margin="10,0,0,0"/>
+        <Label Content="4. Start using the app" FontWeight="Bold" Margin="0,20,0,0"/>
+        <TextBlock TextWrapping="Wrap" Margin="10,0,0,0"><Run Text="Keep this program running while you play. The window can be minimized."/><LineBreak/><Run Text="Whenever you want your character to come up with a Vicious Mockery line, press Ctrl+Enter and talk to them, explaining the situation you're in and which enemy you are attacking. Then, press Ctrl+Enter again to confirm, or Ctrl+Alt+Enter to cancel."/><LineBreak/><Run Text="Wait a few seconds for the response to be generated."/></TextBlock>
 
-    </Grid>
+    </StackPanel>
 </Window>
