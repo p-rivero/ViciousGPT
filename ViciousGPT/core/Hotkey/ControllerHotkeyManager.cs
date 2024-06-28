@@ -7,7 +7,19 @@ public class ControllerHotkeyManager : IDisposable
     private const int POLL_PERIOD_MS = 5;
     private const int THROTTLE_MS = 1000;
 
-    private readonly PlayerIndex playerIndex;
+    public uint PlayerIndex
+    {
+        get => playerIndex;
+        set
+        {
+            if (value > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(PlayerIndex), "Player index must be between 0 and 3");
+            }
+            playerIndex = value;
+        }
+    }
+    private uint playerIndex = 0;
 
     public Action? OnSticksPressed { get; set; }
     private readonly Throttle onSticksPressedThrottle = new(THROTTLE_MS);
@@ -17,13 +29,8 @@ public class ControllerHotkeyManager : IDisposable
 
     private readonly CancellationTokenSource cancellationTokenSource = new();
 
-    public ControllerHotkeyManager(uint playerIndex)
+    public ControllerHotkeyManager()
     {
-        if (playerIndex > 3)
-        {
-            throw new ArgumentOutOfRangeException(nameof(playerIndex), "Player index must be between 0 and 3");
-        }
-        this.playerIndex = (PlayerIndex)playerIndex;
         onSticksPressedThrottle.Action += () => OnSticksPressed?.Invoke();
         onTriggersPressedThrottle.Action += () => OnTriggersPressed?.Invoke();
     }
@@ -42,7 +49,7 @@ public class ControllerHotkeyManager : IDisposable
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            GamePadState state = GamePad.GetState(playerIndex);
+            GamePadState state = GamePad.GetState((PlayerIndex)playerIndex);
             if (state.Buttons.LeftStick == ButtonState.Pressed && state.Buttons.RightStick == ButtonState.Pressed)
             {
                 onSticksPressedThrottle.Invoke();

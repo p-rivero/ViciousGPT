@@ -130,5 +130,17 @@ namespace ViciousGPT.Properties {
                 this["UserInputLanguage"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint ControllerPlayerIndex {
+            get {
+                return ((uint)(this["ControllerPlayerIndex"]));
+            }
+            set {
+                this["ControllerPlayerIndex"] = value;
+            }
+        }
     }
 }

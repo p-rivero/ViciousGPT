@@ -5,17 +5,16 @@ using static ViciousGPT.KeyboardHotkeyManager;
 using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
+using System.Windows.Controls;
 
 
 namespace ViciousGPT;
 
 public partial class MainWindow : Window
 {
-    private const uint CONTROLLER_NUMBER = 0; // Between 0 and 3
-
     private KeyboardHotkeyManager? triggerHotkey;
     private KeyboardHotkeyManager? cancelHotkey;
-    private readonly ControllerHotkeyManager controllerHotkeys = new(CONTROLLER_NUMBER);
+    private readonly ControllerHotkeyManager controllerHotkeys = new() { PlayerIndex = Settings.Default.ControllerPlayerIndex };
     private readonly GlobalController globalController;
 
     public MainWindow()
@@ -54,6 +53,7 @@ public partial class MainWindow : Window
         controllerHotkeys.OnSticksPressed = () => globalController.OnTriggered();
         controllerHotkeys.OnTriggersPressed = () => globalController.OnCancelled();
         controllerHotkeys.Start();
+        UpdateControllerRadio();
     }
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -90,5 +90,30 @@ public partial class MainWindow : Window
             Directory.CreateDirectory(persistentFolder);
         }
         return persistentFolder;
+    }
+
+    private void controllerRadio_Checked(object sender, RoutedEventArgs e)
+    {
+        uint index = sender switch
+        {
+            _ when ReferenceEquals(sender, controllerRadio1) => 0,
+            _ when ReferenceEquals(sender, controllerRadio2) => 1,
+            _ when ReferenceEquals(sender, controllerRadio3) => 2,
+            _ when ReferenceEquals(sender, controllerRadio4) => 3,
+            _ => throw new ArgumentException("Invalid sender"),
+        };
+        controllerHotkeys.PlayerIndex = index;
+        Settings.Default.ControllerPlayerIndex = index;
+    }
+
+    private void UpdateControllerRadio()
+    {
+        (Settings.Default.ControllerPlayerIndex switch
+        {
+            3 => controllerRadio4,
+            2 => controllerRadio3,
+            1 => controllerRadio2,
+            _ => controllerRadio1,
+        }).IsChecked = true;
     }
 }
