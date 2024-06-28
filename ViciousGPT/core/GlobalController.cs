@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using ViciousGPT.AudioProcessing;
+using ViciousGPT.Properties;
 
 namespace ViciousGPT;
 
@@ -16,7 +17,7 @@ class GlobalController : IDisposable
     public GlobalController(Window owner)
     {
         this.owner = owner;
-        loopAudioPlayer.Start(Properties.Resources.bard_loop);
+        loopAudioPlayer.Start(Resources.bard_loop);
     }
 
     private State state = State.Idle;
@@ -39,10 +40,12 @@ class GlobalController : IDisposable
             switch (state)
             {
                 case State.Idle:
+                    new CommandRunner { Command = Settings.Default.PreRequestCommand, DelaySeconds = Settings.Default.PreRequestCommandDelay }.Start();
                     StartRecording();
                     break;
                 case State.Recording:
                     await AcceptRecording();
+                    new CommandRunner { Command = Settings.Default.PostResponseCommand, DelaySeconds = Settings.Default.PostResponseCommandDelay }.Start();
                     break;
             }
         } catch (Exception e)
@@ -59,6 +62,7 @@ class GlobalController : IDisposable
             {
                 case State.Recording:
                     StopRecording();
+                    new CommandRunner { Command = Settings.Default.OnCancelCommand, DelaySeconds = Settings.Default.OnCancelCommandDelay }.Start();
                     break;
                 case State.Speaking:
                     StopSpeaking();
@@ -103,7 +107,7 @@ class GlobalController : IDisposable
 
     private async Task PlayVoice(byte[] audio)
     {
-        _ = sfxAudioPlayer.Play(Properties.Resources.vicious_mockery);
+        _ = sfxAudioPlayer.Play(Resources.vicious_mockery);
         await Task.Delay(DelayAfterSfx);
         await voiceAudioPlayer.Play(audio);
     }

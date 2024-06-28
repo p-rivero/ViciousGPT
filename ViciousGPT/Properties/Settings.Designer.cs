@@ -142,5 +142,77 @@ namespace ViciousGPT.Properties {
                 this["ControllerPlayerIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PreRequestCommand {
+            get {
+                return ((string)(this["PreRequestCommand"]));
+            }
+            set {
+                this["PreRequestCommand"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PostResponseCommand {
+            get {
+                return ((string)(this["PostResponseCommand"]));
+            }
+            set {
+                this["PostResponseCommand"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double PostResponseCommandDelay {
+            get {
+                return ((double)(this["PostResponseCommandDelay"]));
+            }
+            set {
+                this["PostResponseCommandDelay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double PreRequestCommandDelay {
+            get {
+                return ((double)(this["PreRequestCommandDelay"]));
+            }
+            set {
+                this["PreRequestCommandDelay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OnCancelCommand {
+            get {
+                return ((string)(this["OnCancelCommand"]));
+            }
+            set {
+                this["OnCancelCommand"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double OnCancelCommandDelay {
+            get {
+                return ((double)(this["OnCancelCommandDelay"]));
+            }
+            set {
+                this["OnCancelCommandDelay"] = value;
+            }
+        }
     }
 }
