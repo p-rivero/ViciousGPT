@@ -17,7 +17,7 @@ internal class OpenAiClient
     {
         ChatCompletionCreateRequest request = new()
         {
-            Model = Models.Gpt_3_5_Turbo,
+            Model = Models.Gpt_4o_mini,
             Temperature = TEMPERATURE,
             Messages = new List<ChatMessage>
             {
