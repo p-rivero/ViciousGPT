@@ -11,11 +11,13 @@ internal class ViciousGptController
     public static bool OutputLogFile => Settings.Default.OutputLogFile;
     public static bool OutputIntermediaryResults => Settings.Default.OutputIntermediaryResults;
 
-    public string UserInputLanguageIso => Settings.Default.UserInputLanguage;
+    public static string UserInputLanguageIso => Settings.Default.UserInputLanguage;
 
     public float SynthesizedVoiceSpeedChange { get; set; } = 0.85f;
 
     public static string UserCharatcterName => Settings.Default.CharacterName;
+
+    public static ProfanityFilter ProfanityFilter => (ProfanityFilter)Settings.Default.ProfanityFilter;
 
     public static List<int> SelectedActs {
         get
@@ -130,7 +132,7 @@ internal class ViciousGptController
     
     private async Task<string> GenerateResponse(string input)
     {
-        string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguageIso, SelectedActs);
+        string systemPrompt = SystemPrompt.GetSystemPrompt(UserCharatcterName, UserInputLanguageIso, ProfanityFilter, SelectedActs);
         return await openAiClient.CompletePrompt(systemPrompt, input);
     }
 }
