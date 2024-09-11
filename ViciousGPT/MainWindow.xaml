@@ -18,9 +18,9 @@
             </TextBlock>
             <Label Content="2. Add your credentials:" FontWeight="Bold" Margin="0,20,0,0"/>
             <StackPanel Orientation="Horizontal">
-                <Label Content="Google Cloud service account JSON:" Margin="5,0,0,0"/>
-                <Button x:Name="selectFileButton" Content="Select file" Click="selectFileButton_Click" VerticalAlignment="Center" Margin="10,0,0,0" Width="70"/>
-                <Label x:Name="selectFileDone" Content="(Done)" FontWeight="Bold" Margin="10,0,0,0"/>
+                <Label Content="Local Google Cloud credentials:" Margin="5,0,0,0"/>
+                <Label x:Name="googleCloudFoundLabel" Content="Found" Margin="5,0,0,0" FontWeight="Bold" Foreground="#FF1A9601"/>
+                <Label x:Name="googleCloudNotFoundLabel" Content="NOT FOUND (See README.md)" Margin="5,0,0,0" FontWeight="Bold" Foreground="#FFF30000"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Label Content="OpenAI key:" Margin="5,0,0,0"/>

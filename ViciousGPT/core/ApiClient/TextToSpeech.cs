@@ -19,6 +19,7 @@ internal class TextToSpeech
 
         AudioConfig audioConfig = new() { AudioEncoding = AudioEncoding.Linear16 };
 
+        // If this fails, make sure you have set up the Google Cloud credentials correctly (see README.md)
         SynthesizeSpeechResponse response = await speechClient.Value.SynthesizeSpeechAsync(input, voice, audioConfig);
 
         return response.AudioContent.ToByteArray();
@@ -26,8 +27,6 @@ internal class TextToSpeech
 
     private static TextToSpeechClient GetClient()
     {
-        string jsonKeyPath = Settings.Default.GoogleServiceAccountPath;
-        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath);
         return TextToSpeechClient.Create();
     }
 }

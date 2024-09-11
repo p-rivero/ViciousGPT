@@ -49,18 +49,6 @@ namespace ViciousGPT.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string GoogleServiceAccountPath {
-            get {
-                return ((string)(this["GoogleServiceAccountPath"]));
-            }
-            set {
-                this["GoogleServiceAccountPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool SelectedAct1 {
             get {

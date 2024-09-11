@@ -20,11 +20,13 @@ You will need to set up an OpenAI developer account and get an API key. Then, wh
 
 ### Google Cloud
 
-This project uses Google Cloud's [Text-to-Speech](https://cloud.google.com/text-to-speech) API.
-You will need to set up a Google Cloud project and enable that API.
+This project uses Google Cloud's [Text-to-Speech](https://cloud.google.com/text-to-speech) API. In order to use it, follow these steps:
 
-Once you have done that, go to Credentials and create a new service account. Give it the following role:
-- Cloud Speech Client
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+1. Create a new project.
+1. Go to the API Library and enable the Text-to-Speech API.
+1. Install the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).
+1. Open a terminal and run `gcloud init`. Follow the instructions to authenticate.
+1. Run `gcloud auth application-default login` and follow the instructions to authenticate.
 
-Edit the service account and go to the Keys tab. Create a new json key download it. When you run the program, you will need to select this file.
-
+After those steps, launch the program again and check that the Google Cloud credentials show up as "Found".

@@ -28,12 +28,27 @@ public partial class MainWindow : Window
 
         openAiKeyBox.Password = Settings.Default.OpenAiKey;
         openAiKeyBox.PasswordChanged += (sender, e) => Settings.Default.OpenAiKey = openAiKeyBox.Password;
-        RefreshSelectFileDoneVisibility();
+        CheckGoogleCloudCredential();
     }
 
-    private void RefreshSelectFileDoneVisibility()
+    private void CheckGoogleCloudCredential()
     {
-        selectFileDone.Visibility = Settings.Default.GoogleServiceAccountPath.Length > 0 ? Visibility.Visible : Visibility.Hidden;
+        if (HasGoogleCloudCredential())
+        {
+            googleCloudFoundLabel.Visibility = Visibility.Visible;
+            googleCloudNotFoundLabel.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            googleCloudFoundLabel.Visibility = Visibility.Collapsed;
+            googleCloudNotFoundLabel.Visibility = Visibility.Visible;
+        }
+    }
+
+    private static bool HasGoogleCloudCredential()
+    {
+        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        return File.Exists(appData + @"\gcloud\application_default_credentials.json");
     }
 
     private static void IntializeTrace()
@@ -66,30 +81,6 @@ public partial class MainWindow : Window
     {
         globalController.Dispose();
         base.OnClosed(e);
-    }
-
-    private void selectFileButton_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog();
-        bool success = dialog.ShowDialog() ?? false;
-        if (success)
-        {
-            string newFilePath = Path.Combine(GetPersistentFolder(), "service-account.json");
-            File.Copy(dialog.FileName, newFilePath, true);
-            Settings.Default.GoogleServiceAccountPath = newFilePath;
-        }
-        RefreshSelectFileDoneVisibility();
-    }
-
-    private static string GetPersistentFolder()
-    {
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        string persistentFolder = Path.Combine(appData, "ViciousGPT");
-        if (!Directory.Exists(persistentFolder))
-        {
-            Directory.CreateDirectory(persistentFolder);
-        }
-        return persistentFolder;
     }
 
     private void controllerRadio_Checked(object sender, RoutedEventArgs e)
