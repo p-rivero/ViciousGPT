@@ -2,6 +2,7 @@
 using NAudio.Wave.SampleProviders;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace ViciousGPT.AudioProcessing;
@@ -60,7 +61,7 @@ public static class Extensions
 {
     public static AudioFileReader GetAudioFileReaderFromStream(Stream stream)
     {
-        AudioFileReader reader = (AudioFileReader)FormatterServices.GetUninitializedObject(typeof(AudioFileReader));
+        AudioFileReader reader = (AudioFileReader)RuntimeHelpers.GetUninitializedObject(typeof(AudioFileReader));
 
         Type type = reader.GetType();
         type.GetField("lockObject", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(reader, new object());

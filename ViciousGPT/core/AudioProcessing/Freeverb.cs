@@ -6,7 +6,7 @@ namespace ViciousGPT.AudioProcessing;
 
 public abstract class WaveEffect32 : WaveProvider32
 {
-    protected ISampleProvider Input { get; }
+    protected ISampleProvider? Input { get; }
 
     public float Wet { get; set; }
 
@@ -246,11 +246,9 @@ public class WaveMixer32 : WaveProvider32
     }
 }
 
-public class DummyWaveProvider32 : WaveProvider32
+public class DummyWaveProvider32(int sampleRate, int channels) : WaveProvider32(sampleRate, channels)
 {
-    private float[] _buffer;
-
-    public DummyWaveProvider32(int sampleRate, int channels) : base(sampleRate, channels) { }
+    private float[]? _buffer;
 
     public void SetBuffer(float[] buffer, int offset, int sampleCount)
     {
@@ -261,13 +259,19 @@ public class DummyWaveProvider32 : WaveProvider32
 
     public float[] GetBuffer()
     {
+        if (_buffer == null)
+            throw new InvalidOperationException("Call SetBuffer first");
+
         return _buffer;
     }
 
     public override int Read(float[] buffer, int offset, int sampleCount)
     {
         if (buffer.Length != sampleCount)
-            throw new Exception();
+            throw new ArgumentException("Buffer length must match sample count.");
+
+        if (_buffer == null)
+            throw new InvalidOperationException("Call SetBuffer first");
 
         for (var i = 0; i < sampleCount; ++i)
             buffer[offset + i] = _buffer[i];
@@ -344,6 +348,9 @@ public class Freeverb : WaveEffect32
 
     public override int Read(float[] buffer, int offset, int sampleCount)
     {
+        if (Input == null)
+            throw new InvalidOperationException("Input must be set.");
+
         int inputSamplesRead = Input.Read(buffer, offset, sampleCount);
         if (inputSamplesRead == 0)
             return 0;
