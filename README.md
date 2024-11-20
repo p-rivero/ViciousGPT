@@ -2,7 +2,7 @@
 
 Play Baldur's Gate or any other DnD game with an infinite number of Vicious Mockery voice lines!
 
-<a href="https://github.com/p-rivero/ViciousGPT/releases/download/latest/ViciousGPT.exe"><img src="https://img.shields.io/badge/Download%20latest%20release-10a37f?style=for-the-badge"></a>
+<a href="https://github.com/pol-rivero/ViciousGPT/releases/download/latest/ViciousGPT.exe"><img src="https://img.shields.io/badge/Download%20latest%20release-10a37f?style=for-the-badge"></a>
 
 ## Usage
 
